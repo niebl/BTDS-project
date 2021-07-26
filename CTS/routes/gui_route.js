@@ -17,49 +17,5 @@ router.get('/', (req,res) => {
 })
 
 
-
-//TESTAREA
-//create hardcoded room schema
-/*
-var pss1 = new Passage({
-    sensorID: "A111.1"
-})
-var pss2 = new Passage({
-    sensorID: "A111.2"
-})
-var rss1 = new Aoi({
-    sensorID: "A111.rss",
-    description: "Area of interest: kaffeemaschine",
-    observation: {
-        time: Date.now(),
-        inhabitants: [
-            {x: 12.1212, y: 65.1245},
-            {x: 10.0032, y: 72.1243}
-        ]
-    }
-})
-
-var room1 = new Room({
-    roomNumber : "A111",
-    description: "this room is just a test room. two entries, one Aoi",
-    passages: [pss1, pss2]
-})
-
-
-try{
-    pss1.save()
-    pss2.save()
-    rss1.save()
-    room1.save()
-} catch(e){
-    console.log(e)
-}
-
-console.log(room1)
-console.log(pss1)
-console.log(pss2)
-console.log(rss1)
-
-*/
     
 module.exports = router;
