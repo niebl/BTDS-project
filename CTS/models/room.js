@@ -10,7 +10,12 @@ const RoomSchema = new mongoose.Schema({
     description:{
         type: String
     },
-    inhabitants:{
+    inhabitants_inferred:{
+        type: Number,
+        required: true,
+        default: 0,
+    },
+    inhabitants_observed:{
         type: Number,
         required: true,
         default: 0,

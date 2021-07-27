@@ -36,6 +36,16 @@ router.post('/room', async (req,res)=>{
             room.passages.push(passage);
         }
 
+
+        //assign room to sensors, so posting to sensor endpoints is more efficient
+        console.log(room.aoi)
+        if(room.aoi != null){
+            await assignToRss(room._id, room.aoi);
+        }
+        for(passage of room.passages){
+            await assignToPSS(room._id, passage);
+        }   
+
         await room.save();
         res.redirect("/config/");
 
@@ -83,5 +93,49 @@ router.post('/aoi', async (req,res)=>{
         res.send(e);
     }
 });
+
+/**
+ * Function that takes mongodb _id of room and rss and assigns room to rss
+ * @param {*} roomID the mongo _id of room
+ * @param {*} sensorID the mongo _id of sensor
+ * @returns true if successful
+ */
+async function assignToRss(roomID, sensorID){
+
+    let rss = await Aoi.findById(sensorID);
+    console.log(rss)
+
+    if (rss.inRoom == null){
+        rss.inRoom = roomID;
+        await rss.save();
+        return true;
+    } else {
+        throw(`rss ${sensorID} already taken`);
+        return false;
+    }
+}
+
+/**
+ * Function that takes mongodb _id of room and pss and assigns room to rss
+ * @param {*} roomID the mongo _id of room
+ * @param {*} sensorID the mongo _id of sensor
+ * @returns true if successful
+ */
+async function assignToPSS(roomID, passage){
+    
+    let pss = await Passage.findById(passage);
+    if(pss.toRoom == null){
+        pss.toRoom = roomID;
+        await pss.save();
+        return true;
+    }else if(pss.fromRoom == null){
+        pss.fromRoom = roomID;
+        await pss.save();
+        return true;
+    }else{
+        throw(`pss ${passage} already taken`);
+        return false;
+    }
+} 
 
 module.exports = router;

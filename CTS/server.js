@@ -14,10 +14,16 @@ mongoose.connect(process.env.MONGO_CONNECTION,{
 
 const guiRouter = require('./routes/gui_route')
 const configRouter = require('./routes/config_route')
+const roomRouter = require('./routes/room_route')
+const sensorRouter = require('./routes/sensor_route')
+
 
 app.set('view engine', 'ejs');
 app.use("/", guiRouter);
 app.use("/config", configRouter);
+app.use("/room", roomRouter);
+app.use("/sensor", sensorRouter);
+
 app.use(express.static('public'))
 
 app.listen(process.env.SERVER_PORT);

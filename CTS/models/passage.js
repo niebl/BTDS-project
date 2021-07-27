@@ -6,6 +6,16 @@ const PassageSchema = new mongoose.Schema({
         index: true,
         required: true,
         unique: true
+    },
+    toRoom:{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Room',
+        default: null
+    },
+    fromRoom:{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Room',
+        default: null
     }
 });
 
