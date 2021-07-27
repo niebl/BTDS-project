@@ -15,11 +15,16 @@ router.get('/', async (req,res) => {
 })
 
 router.post('/room', async (req,res)=>{
-    console.log(req.body)
-
     //delete room if exists. not exactly REST compliant but it's easier.
-    await Room.deleteOne({roomNumber: req.body.roomID})
+    await Room.deleteOne({roomNumber: req.body.roomID});
 
+    //fix for issue #3
+    if(typeof req.body.pss == "string"){
+        req.body.pss = [req.body.pss]
+    }
+    req.body.rss = req.body.rss || null;
+
+    //create document for room and save
     try{
         let room = new Room({
             roomNumber: req.body.roomID,
@@ -28,7 +33,7 @@ router.post('/room', async (req,res)=>{
         });
 
         for(passage of req.body.pss){
-            room.passages.push(passage)
+            room.passages.push(passage);
         }
 
         await room.save();
@@ -39,11 +44,11 @@ router.post('/room', async (req,res)=>{
         res.redirect("/config/");
     }
 
-})
+});
 
 router.post('/passage', async (req,res)=>{
-    //delete passage if exists. not exactly REST compliant but it's easier.
-    await Passage.deleteOne({sensorID: req.body.sensorID})
+    //delete passage if exists.
+    await Passage.deleteOne({sensorID: req.body.sensorID});
 
     let passage = new Passage({
         sensorID: req.body.sensorID,
@@ -51,16 +56,16 @@ router.post('/passage', async (req,res)=>{
 
     try{
         await passage.save();
-        res.redirect("/config/")
+        res.redirect("/config/");
     } catch(e) {
-        res.send(e)
+        res.send(e);
     }
-})
+});
 
 
 router.post('/aoi', async (req,res)=>{
-    //delete aoi if exists. not exactly REST compliant but it's easier.
-    await Aoi.deleteOne({sensorID: req.body.sensorID})
+    //delete aoi if exists.
+    await Aoi.deleteOne({sensorID: req.body.sensorID});
 
     let aoi = new Aoi({
         sensorID: req.body.sensorID,
@@ -73,55 +78,10 @@ router.post('/aoi', async (req,res)=>{
 
     try{
         await aoi.save();
-        res.redirect("/config/")
+        res.redirect("/config/");
     } catch(e) {
-        res.send(e)
+        res.send(e);
     }
-})
-
-
-//TESTAREA
-//create hardcoded room schema
-/*
-var pss1 = new Passage({
-    sensorID: "A111.1"
-})
-var pss2 = new Passage({
-    sensorID: "A111.2"
-})
-var rss1 = new Aoi({
-    sensorID: "A111.rss",
-    description: "Area of interest: kaffeemaschine",
-    observation: {
-        time: Date.now(),
-        inhabitants: [
-            {x: 12.1212, y: 65.1245},
-            {x: 10.0032, y: 72.1243}
-        ]
-    }
-})
-
-var room1 = new Room({
-    roomNumber : "A111",
-    description: "this room is just a test room. two entries, one Aoi",
-    passages: [pss1, pss2]
-})
-
-
-try{
-    pss1.save()
-    pss2.save()
-    rss1.save()
-    room1.save()
-} catch(e){
-    console.log(e)
-}
-
-console.log(room1)
-console.log(pss1)
-console.log(pss2)
-console.log(rss1)
-
-*/
+});
 
 module.exports = router;

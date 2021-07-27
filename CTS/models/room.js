@@ -21,7 +21,8 @@ const RoomSchema = new mongoose.Schema({
     aoi:{
         //lets start with support for one RSS only, to not overcomplicate things
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Aoi'
+        ref: 'Aoi',
+        default: null
     },
 
     //The part that governs the PSSs; references to the sensors
