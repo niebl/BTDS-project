@@ -10,15 +10,26 @@ const RoomSchema = new mongoose.Schema({
     description:{
         type: String
     },
+
+    //number of inhabitants inferred
     inhabitants_inferred:{
         type: Number,
-        required: true,
         default: 0,
     },
+    //number of inhabitants naively inferred, no corrections made without RSS data.
+    inhabitants_naive:{
+        type: Number,
+        default: 0,
+    },
+    //number of inhabitants as observed by the RSS
     inhabitants_observed:{
         type: Number,
-        required: true,
         default: 0,
+    },
+
+    lastEvent:{
+        type: String,
+        default: Date.now()
     },
 
     //The part that governs the RSS; reference to the sensor. 
