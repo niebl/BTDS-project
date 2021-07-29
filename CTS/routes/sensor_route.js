@@ -29,6 +29,38 @@ router.get('/', async (req,res) => {
     res.send(output);
 })
 
+//Endpoint for arrival of RSS post data
+//TODO: evtl observation validaten
+router.post('/rss/:sensorID', async (req,res) => {
+    try{
+        console.log(req.body)
+
+        let rss = await Aoi.find({sensorID: req.params.sensorID});
+        rss = rss[0];
+
+        let params = req.body;
+
+
+        if((rss.observation.timestamp < params.timestamp) 
+        || (rss.observation == undefined)){
+            rss.observation = {
+                timestamp: params.timestamp,
+                inhabitants: JSON.parse(params.inhabitants)
+            }
+        }
+
+        console.log(rss)
+
+        await rss.save();
+
+        res.status(200);
+        res.send(rss);
+    } catch(e){
+        res.status(e.status || 500)
+        res.send(e.msg || e);
+    }
+})
+
 //Endpoint for arrival of PSS post data
 //This part here will do a lot of the inferring work
 router.post('/pss/:sensorID', async (req,res) => {
@@ -43,7 +75,7 @@ router.post('/pss/:sensorID', async (req,res) => {
 
         let out = await processPssEvent(params, pss);
 
-        res.status(304);
+        res.status(200);
         res.send(out);
     } catch(e){
         res.status(e.status || 500)
@@ -60,14 +92,16 @@ router.post('/pss/:sensorID', async (req,res) => {
  async function processPssEvent(params, pss){
     //TODO: specify what the request will have to look like
     if(params.event == "in"){
-        return await updateRoomInhabitants(
+        let out = await updateRoomInhabitants(
             params, params.toRoom, params.fromRoom, pss, 1
             );
+        return out;
 
     } else if(params.event == "out"){
-        return await updateRoomInhabitants(
+        let out = await updateRoomInhabitants(
             params, params.fromRoom, params.toRoom, pss, 1
             );
+        return out;
 
     } else{
         throw({status: 400, msg:`unexpected event ${params.event}`})
@@ -100,8 +134,6 @@ async function updateRoomInhabitants(params, to, from, pss, number){
     //naively add inhabitants to toRoom and subtract from fromRoom
     toRoom.inhabitants_naive += number;
     fromRoom.inhabitants_naive -= number;
-    
-    console.log("chirp")
 
     //NUMBER CORRECTIONS:
     //choose largest between inferred, naive and observed to get the inferred number
@@ -138,9 +170,11 @@ async function updateRoomInhabitants(params, to, from, pss, number){
         fromRoom.lastEvent = params.timestamp;
     }
 
+    const returnObject = {toRoom: toRoom, fromRoom: fromRoom}
+
     await toRoom.save();
     await fromRoom.save();
-    return {toRoom: toRoom, fromRoom: fromRoom};
+    return returnObject;
 }
 
 module.exports = router;
