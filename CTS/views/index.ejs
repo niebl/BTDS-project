@@ -7,7 +7,25 @@
     <title>Central Tracking Server</title>
 </head>
 <body>
-    <p>Inhalt folgt</p>
+    <h1>Room Overview</h1>
     <a href="/config/">configuration</a>
+
+    <div id="main">
+
+    <% for(room of rooms) { %> 
+        <hr>
+        <b>Room <%= room.roomNumber %></b>
+        <p>PSS: 
+            <% for(pss of room.passages){ %> 
+            <%= `${pss.sensorID}, ` %>
+            <%}%>
+        </p>
+        
+        <% if(room.aoi != null){ %>
+        <p>RSS: <%= room.aoi.sensorID%></p>
+        <% }; %>
+    <%};%>
+
+    </div>
 </body>
 </html>
