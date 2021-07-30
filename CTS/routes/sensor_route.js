@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
+
 const Room = require('./../models/room');
 const Passage = require('./../models/passage');
 const Aoi = require('./../models/aoi');
-const room = require('./../models/room');
+
+const AoiMessenger = require('./../utils/messenger');
 
 //Endpoint to search for all types of sensors. allows SensorID and _id
 router.get('/', async (req,res) => {
@@ -28,6 +30,46 @@ router.get('/', async (req,res) => {
     
     res.send(output);
 })
+
+//Websocket endpoint for rss sensors
+router.ws('/rss/:sensorID', async function(ws, req) {
+    let messenger = null;
+
+    //on message, start periodic updates
+    ws.on('message', async (msg)=>{
+        console.log(msg)
+
+        if(msg == "init"){
+            console.log(`initialising socket ${req.params.sensorID}`);
+
+            messenger = new AoiMessenger(
+                req.params.sensorID,
+                1000,
+                ws
+            );
+
+            await messenger.initialise();
+        }
+
+        if(msg == "close"){
+            await messenger.stopUpdate();
+        }
+    });
+
+    ws.on('close', async ()=>{
+        console.log(`closing socket ${req.params.sensorID}`);
+        try{
+            await messenger.stopUpdate();
+            messenger = null;
+            console.log(`socket ${req.params.sensorID} closed`);
+        } catch(e){
+            console.log(e);
+        }
+
+    });
+
+    console.log('socket', req.testing);
+}); 
 
 //Endpoint for arrival of RSS post data
 //TODO: evtl observation validaten

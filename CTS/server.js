@@ -1,6 +1,7 @@
 const express = require('express');
-const app = express();
+var app = express();
 const mongoose = require('mongoose');
+var expressWs = require('express-ws')(app);
 
 app.use(express.urlencoded({ extended: false }));
 require('dotenv').config()
@@ -10,7 +11,6 @@ mongoose.connect(process.env.MONGO_CONNECTION,{
     useUnifiedTopology : true,
     useCreateIndex: true
 })
-
 
 const guiRouter = require('./routes/gui_route')
 const configRouter = require('./routes/config_route')
@@ -25,5 +25,13 @@ app.use("/room", roomRouter);
 app.use("/sensor", sensorRouter);
 
 app.use(express.static('public'))
+
+
+app.ws('/', function(ws, req) {
+    ws.on('message', function(msg) {
+      console.log(msg);
+    });
+    console.log('socket', req.testing);
+  }); 
 
 app.listen(process.env.SERVER_PORT);
