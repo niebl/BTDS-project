@@ -26,12 +26,4 @@ app.use("/sensor", sensorRouter);
 
 app.use(express.static('public'))
 
-
-app.ws('/', function(ws, req) {
-    ws.on('message', function(msg) {
-      console.log(msg);
-    });
-    console.log('socket', req.testing);
-  }); 
-
 app.listen(process.env.SERVER_PORT);
