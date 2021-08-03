@@ -20,7 +20,6 @@ router.get('/', async (req,res) => {
     }
 
     const rooms = await Room.find(query);
-    console.log(rooms)
 
     res.send(rooms);
 })

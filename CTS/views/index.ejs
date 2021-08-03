@@ -19,24 +19,23 @@
     <% for(room of rooms) { %> 
         <hr>
         <b>Room <%= room.roomNumber %></b>
+        
+        <p class="inhabitant_ticker" id="inhab_<%= room.roomNumber%>">inhabitants: x</p>
+        
         <p>PSS: 
             <% for(pss of room.passages){ %> 
             <%= `${pss.sensorID}, ` %>
             <%}%>
         </p>
-        
+
         <% if(room.aoi != null){ %>
         <p>RSS: <%= room.aoi.sensorID%></p>
+
         <canvas width="200", height="200"
             class="aoi_canvas"
             id="c_<%= room.aoi.sensorID %>"
             name="<%= room.aoi.sensorID %>">
         </canvas>
-        
-        <!--div class="aoi_canvas"
-        id="c<%= room.aoi.sensorID %>"
-        name="<%= room.aoi.sensorID %>"
-        > test </div-->
 
         <% }; %>
     <%};%>
