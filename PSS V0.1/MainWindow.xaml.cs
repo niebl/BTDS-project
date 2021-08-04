@@ -65,8 +65,10 @@ namespace PSS_V0._1
 
         public StrokeCollection strokes;
 
-        //test
         private CoordinateMapper coordinateMapper = null;
+
+        //test
+        public DepthFrame workFrame;
 
 
         public MainWindow()
@@ -173,15 +175,19 @@ namespace PSS_V0._1
 
 
                             FrameDescription depthFrameDescription = depthFrame.FrameDescription;
+
                             int depthWidth = depthFrameDescription.Width;
                             int depthHeight = depthFrameDescription.Height;
+
                             ushort[] depthframeData = new ushort[depthWidth * depthHeight];
                             depthFrame.CopyFrameDataToArray(depthframeData);
                             CameraSpacePoint[] csp = new CameraSpacePoint[512 * 424];
                             this.coordinateMapper.MapDepthFrameToCameraSpace(depthframeData, csp);
+
                             // Depth(Z Position) of specified coordinate
                             float DepthPosition = csp[(512 * Convert.ToInt16(y)) + Convert.ToInt16(x)].Z;
-                            testbox.Text = Convert.ToString(DepthPosition);
+                            //testbox.Text = Convert.ToString(DepthPosition);
+                            workFrame = depthFrame;
                             ShowDepthFrame(depthFrame);
                         }
                     }
@@ -190,8 +196,8 @@ namespace PSS_V0._1
                     break;
             }
         }
-
-
+        
+        
         private void ShowInfraredFrame(InfraredFrame infraredFrame)
         {
 
@@ -307,6 +313,7 @@ namespace PSS_V0._1
         {
             Save_Stroke();
 
+
         }
 
         //Strokes
@@ -332,39 +339,49 @@ namespace PSS_V0._1
             }
             else
             {
-                //test
-
+                // i counts the stylusPoints in the saved Stroke
                 int i = 0;
-                foreach (StylusPoint p in strokes[0].StylusPoints)
-                {
+                foreach (StylusPoint p in strokes[0].StylusPoints) {
                     i++;
                 }
 
-                testbox.Text = strokes[0].StylusPoints[2].X.ToString();
-                /*
-                 * Tiefeninformation der Pixel suchen
-                 * mit im stroke speichern
-                 * 
-                 * 
-                 */
+                double[,] q = new double[i,3];
+                int k = 0;
+                foreach(StylusPoint p in strokes[0].StylusPoints){
+                    q[k, 0] = GetX(p);
+                    q[k, 1] = GetY(p);
+                    q[k, 2] = GetZ(p, workFrame);
+                    k++;
+                }
+                
             }
-
         }
-        private double[] DepthPoint(StylusPoint sp)
+        private double GetX(StylusPoint sp)
+        {
+            return sp.X;
+        }
+        private double GetY(StylusPoint sp)
+        {
+            return 424 - sp.Y;
+        }
+        private double GetZ(StylusPoint sp, DepthFrame workframe)
         {
 
-            double[] coords = new double[3];
-            coords[0] = sp.X;
-            coords[1] = sp.Y;
+            FrameDescription depthFrameDescription = workFrame.FrameDescription;
 
+            int depthWidth = depthFrameDescription.Width;
+            int depthHeight = depthFrameDescription.Height;
 
-            return coords;
+            ushort[] depthframeData = new ushort[depthWidth * depthHeight];
+            workFrame.CopyFrameDataToArray(depthframeData);
+            CameraSpacePoint[] csp = new CameraSpacePoint[512 * 424];
+            this.coordinateMapper.MapDepthFrameToCameraSpace(depthframeData, csp);
+
+            // Depth(Z Position) of specified coordinate
+            double DepthPosition = csp[(512 * Convert.ToInt16(424-sp.Y)) + Convert.ToInt16(sp.X)].Z;
+
+            return DepthPosition;
         }
-        private void distance(int x, int y)
-        {
-
-        }
-
 
     }
 }
