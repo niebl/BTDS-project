@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+
+using System.Net.Http;
 using Microsoft.Kinect;
 
 namespace RoomSensorSystem
@@ -41,6 +43,10 @@ namespace RoomSensorSystem
         List<Brush> bodyBrushes = new List<Brush>();
         public double dperPixZ = 0;
         public double dperPixX = 0;
+
+        //Http Client Object which will be responsible for sending all the requests
+        //https://stackoverflow.com/questions/4015324/how-to-make-an-http-post-web-request
+        private static readonly HttpClient client = new HttpClient();
 
         public MainWindow()
         {
