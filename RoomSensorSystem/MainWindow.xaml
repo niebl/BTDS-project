@@ -17,12 +17,16 @@
             <Label  x:Name="coord_body" Content="Body Coordinates: " HorizontalAlignment="Left" Margin="50,10,0,0" VerticalAlignment="Top" Width="270"/>
 
             <TextBox x:Name="postUrl" HorizontalAlignment="Right" Height="23" Margin="0,82,72,0" TextWrapping="Wrap" Text="POST Url" VerticalAlignment="Top" Width="438"/>
-            <TextBox x:Name="intervalLenght" HorizontalAlignment="Right" Height="23" Margin="0,120,72,0" TextWrapping="Wrap" Text="1000" VerticalAlignment="Top" Width="438"/>
-            <Button x:Name="confirmSettings" Content="Confirm Settings" HorizontalAlignment="Right" Height="23" Margin="0,158,358,0" VerticalAlignment="Top" Width="152"/>
+            <TextBox x:Name="intervalLength" HorizontalAlignment="Right" Height="23" Margin="0,141,72,0" TextWrapping="Wrap" Text="1000" VerticalAlignment="Top" Width="438"/>
+            <Button x:Name="confirmSettings" Content="Confirm Settings" HorizontalAlignment="Right" Height="23" Margin="0,179,358,0" VerticalAlignment="Top" Width="152" Click="confirmSettings_Click"/>
 
             <Border BorderBrush="Purple" BorderThickness="1" HorizontalAlignment="Right" Height="479" Margin="0,240,72,0" VerticalAlignment="Top" Width="438">
-                <TextBlock x:Name="windowConsole" TextWrapping="Wrap" />
+                <ScrollViewer x:Name="ConsoleScroller"  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                    <TextBlock x:Name="windowConsole" TextWrapping="Wrap" />
+                </ScrollViewer>
             </Border>
+            <Label Content="room sensor POST URL:" HorizontalAlignment="Right" Margin="0,56,371,0" VerticalAlignment="Top"/>
+            <Label Content="update-interval length (ms)" HorizontalAlignment="Right" Margin="0,115,357,0" VerticalAlignment="Top"/>
         </Grid>
     </Grid>
 </Window>

@@ -185,6 +185,9 @@ namespace RoomSensorSystem
                         is_tracked = true;
                         createBody(fieldOfView.ActualWidth / 2 + bodyX, bodyZ, bodyBrushes[exist_id]);
                         coord_body.Content = coordinatesFieldofView(tracked_bodies[exist_id]);
+
+                        //logConsole(coordinatesFieldofView(tracked_bodies[exist_id]));
+
                         break;
                     }
                 }
@@ -259,11 +262,22 @@ namespace RoomSensorSystem
             logConsole("Window initialised");
         }
 
+        private void confirmSettings_Click(object sender, RoutedEventArgs e)
+        {
+            String newURL = postUrl.Text;
+            int newInterval = Convert.ToInt32(intervalLength.Text);
+
+            logConsole("confirmed Settings: ");
+            logConsole($"URL: \"{newURL}\"    Interval-length: {newInterval}");
+        }
+
         //logs the string to the window console
         private void logConsole(String consoleoOut)
         {
             windowConsole.Text = windowConsole.Text + Environment.NewLine + consoleoOut;
+            ConsoleScroller.ScrollToBottom();
         }
+
 
     }
 }
