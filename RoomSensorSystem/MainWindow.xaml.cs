@@ -253,7 +253,17 @@ namespace RoomSensorSystem
             myPolygon.Opacity = 0.2;
 
             //Add the triangle in our canvas
-            myGrid.Children.Add(myPolygon);
+            topView.Children.Add(myPolygon);
+
+
+            logConsole("Window initialised");
         }
+
+        //logs the string to the window console
+        private void logConsole(String consoleoOut)
+        {
+            windowConsole.Text = windowConsole.Text + Environment.NewLine + consoleoOut;
+        }
+
     }
 }

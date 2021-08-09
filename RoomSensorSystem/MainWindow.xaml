@@ -8,11 +8,21 @@
         Title="Room Sensor" Height="800" Width="1200" Loaded="Window_Loaded">
     <Grid>
         <Grid x:Name="myGrid">
-            <Border BorderBrush="Purple" BorderThickness="1" Margin="50,50,50,50" >
-                <Canvas x:Name="fieldOfView">
-                </Canvas>
+            <Border BorderBrush="Purple" BorderThickness="1" Margin="50,50,554,50" >
+                <Grid x:Name="topView">
+                    <Canvas x:Name="fieldOfView" Margin="0,0,0,0">
+                    </Canvas>
+                </Grid>
             </Border>
             <Label  x:Name="coord_body" Content="Body Coordinates: " HorizontalAlignment="Left" Margin="50,10,0,0" VerticalAlignment="Top" Width="270"/>
+
+            <TextBox x:Name="postUrl" HorizontalAlignment="Right" Height="23" Margin="0,82,72,0" TextWrapping="Wrap" Text="POST Url" VerticalAlignment="Top" Width="438"/>
+            <TextBox x:Name="intervalLenght" HorizontalAlignment="Right" Height="23" Margin="0,120,72,0" TextWrapping="Wrap" Text="1000" VerticalAlignment="Top" Width="438"/>
+            <Button x:Name="confirmSettings" Content="Confirm Settings" HorizontalAlignment="Right" Height="23" Margin="0,158,358,0" VerticalAlignment="Top" Width="152"/>
+
+            <Border BorderBrush="Purple" BorderThickness="1" HorizontalAlignment="Right" Height="479" Margin="0,240,72,0" VerticalAlignment="Top" Width="438">
+                <TextBlock x:Name="windowConsole" TextWrapping="Wrap" />
+            </Border>
         </Grid>
     </Grid>
 </Window>
