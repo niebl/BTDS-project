@@ -1,0 +1,141 @@
+const express = require('express');
+const router = express.Router();
+
+const Room = require('../models/room');
+const Passage = require('../models/passage');
+const Aoi = require('../models/aoi');
+
+//router to get the configuration page
+router.get('/', async (req,res) => {
+    const rooms = await Room.find();
+    const aois = await Aoi.find();
+    const passages = await Passage.find();
+
+    res.render('config', {rooms: rooms, aois: aois, passages: passages});
+})
+
+router.post('/room', async (req,res)=>{
+    //delete room if exists. not exactly REST compliant but it's easier.
+    await Room.deleteOne({roomNumber: req.body.roomID});
+
+    //fix for issue #3
+    if(typeof req.body.pss == "string"){
+        req.body.pss = [req.body.pss]
+    }
+    req.body.rss = req.body.rss || null;
+
+    //create document for room and save
+    try{
+        let room = new Room({
+            roomNumber: req.body.roomID,
+            description: req.body.description,
+            aoi: req.body.rss,
+        });
+
+        for(passage of req.body.pss){
+            room.passages.push(passage);
+        }
+
+
+        //assign room to sensors, so posting to sensor endpoints is more efficient
+        console.log(room.aoi)
+        if(room.aoi != null){
+            await assignToRss(room._id, room.aoi);
+        }
+        for(passage of room.passages){
+            await assignToPSS(room._id, passage);
+        }   
+
+        await room.save();
+        res.redirect("/config/");
+
+    } catch(e){
+        console.log(e);
+        res.redirect("/config/");
+    }
+
+});
+
+router.post('/passage', async (req,res)=>{
+    //delete passage if exists.
+    await Passage.deleteOne({sensorID: req.body.sensorID});
+
+    let passage = new Passage({
+        sensorID: req.body.sensorID,
+    });
+
+    try{
+        await passage.save();
+        res.redirect("/config/");
+    } catch(e) {
+        res.send(e);
+    }
+});
+
+
+router.post('/aoi', async (req,res)=>{
+    //delete aoi if exists.
+    await Aoi.deleteOne({sensorID: req.body.sensorID});
+
+    let aoi = new Aoi({
+        sensorID: req.body.sensorID,
+        description: req.body.description,
+        observation: {
+            time: Date.now(),
+            inhabitants: null,
+        }
+    });
+
+    try{
+        await aoi.save();
+        res.redirect("/config/");
+    } catch(e) {
+        res.send(e);
+    }
+});
+
+/**
+ * Function that takes mongodb _id of room and rss and assigns room to rss
+ * @param {*} roomID the mongo _id of room
+ * @param {*} sensorID the mongo _id of sensor
+ * @returns true if successful
+ */
+async function assignToRss(roomID, sensorID){
+
+    let rss = await Aoi.findById(sensorID);
+    console.log(rss)
+
+    if (rss.inRoom == null){
+        rss.inRoom = roomID;
+        await rss.save();
+        return true;
+    } else {
+        throw(`rss ${sensorID} already taken`);
+        return false;
+    }
+}
+
+/**
+ * Function that takes mongodb _id of room and pss and assigns room to rss
+ * @param {*} roomID the mongo _id of room
+ * @param {*} sensorID the mongo _id of sensor
+ * @returns true if successful
+ */
+async function assignToPSS(roomID, passage){
+    
+    let pss = await Passage.findById(passage);
+    if(pss.toRoom == null){
+        pss.toRoom = roomID;
+        await pss.save();
+        return true;
+    }else if(pss.fromRoom == null){
+        pss.fromRoom = roomID;
+        await pss.save();
+        return true;
+    }else{
+        throw(`pss ${passage} already taken`);
+        return false;
+    }
+} 
+
+module.exports = router;

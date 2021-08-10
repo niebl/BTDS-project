@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/index.js" defer></script>
+
+    <title>Central Tracking Server</title>
+</head>
+<body onload="main()">
+    <h1>Room Overview</h1>
+    <a href="/config/">configuration</a>
+
+    <div id="main">
+
+    <% for(room of rooms) { %> 
+        <hr>
+        <b>Room <%= room.roomNumber %></b>
+        
+        <p class="inhabitant_ticker" id="inhab_<%= room.roomNumber%>">inhabitants: x</p>
+        
+        <p>PSS: 
+            <% for(pss of room.passages){ %> 
+            <%= `${pss.sensorID}, ` %>
+            <%}%>
+        </p>
+
+        <% if(room.aoi != null){ %>
+        <p>RSS: <%= room.aoi.sensorID%></p>
+
+        <canvas width="200", height="200"
+            class="aoi_canvas"
+            id="c_<%= room.aoi.sensorID %>"
+            name="<%= room.aoi.sensorID %>">
+        </canvas>
+
+        <% }; %>
+    <%};%>
+
+    </div>
+</body>
+</html>
