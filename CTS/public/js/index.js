@@ -113,7 +113,8 @@ class AoiDisplay {
     }
 
     async initialise(){
-        this.socket = await new WebSocket(`ws://localhost:3000/sensor/rss/${this.sensor}`);
+        let host = window.location.host
+        this.socket = await new WebSocket(`ws://${window.location.host}/sensor/rss/${this.sensor}`);
         
         this.initCanvas();
 

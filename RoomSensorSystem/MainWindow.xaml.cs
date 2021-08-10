@@ -37,6 +37,7 @@ namespace RoomSensorSystem
         /// Array for the bodies
         private Body[] bodies = null;
         ulong[] bodies_ids = { 0, 0, 0, 0, 0, 0 };
+        private Tracked_Inhabitant[] tracked_Inhabitants = null;
 
 
         //Data for each body
@@ -89,12 +90,13 @@ namespace RoomSensorSystem
         //Create each ellipse (circle) used to show the position of the person in the camera's field of view
         private Ellipse createBody(double coord_x, double coord_y, Brush brush)
         {
+            double view_x = fieldOfView.ActualWidth / 2 + coord_x;
             Ellipse ellipse = new Ellipse();
             ellipse.Fill = brush;
             ellipse.Width = 15;
             ellipse.Height = 15;
             this.fieldOfView.Children.Add(ellipse);
-            Canvas.SetLeft(ellipse, coord_x);
+            Canvas.SetLeft(ellipse, view_x);
             Canvas.SetTop(ellipse, fieldOfView.ActualHeight - coord_y);
             return ellipse;
         }
@@ -107,6 +109,15 @@ namespace RoomSensorSystem
             }
         }
 
+        public struct Tracked_Inhabitant
+        {
+            public double x;
+            public double y;
+            
+            //later when the other stuff works
+            //public double nearestNeighbor;
+        }
+        
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
@@ -138,7 +149,6 @@ namespace RoomSensorSystem
                 }
             }
         }
-
 
         private void DrawTracked_Bodies(List<Body> tracked_bodies)
         {
@@ -183,10 +193,10 @@ namespace RoomSensorSystem
                     if (bodies_ids[exist_id] == current_id)
                     {
                         is_tracked = true;
-                        createBody(fieldOfView.ActualWidth / 2 + bodyX, bodyZ, bodyBrushes[exist_id]);
-                        coord_body.Content = coordinatesFieldofView(tracked_bodies[exist_id]);
+                        createBody(bodyX, bodyZ, bodyBrushes[exist_id]);
+                        //coord_body.Content = coordinatesFieldofViewReadable(tracked_bodies[exist_id]);
 
-                        //logConsole(coordinatesFieldofView(tracked_bodies[exist_id]));
+                        //logConsole(coordinatesFieldofViewReadable(tracked_bodies[exist_id]));
 
                         break;
                     }
@@ -201,8 +211,8 @@ namespace RoomSensorSystem
                         {
                             bodies_ids[fill_id] = current_id;
 
-                            createBody(fieldOfView.ActualWidth / 2 + bodyX, bodyZ, bodyBrushes[fill_id]);
-                            coord_body.Content = coordinatesFieldofView(tracked_bodies[new_id]);
+                            createBody(bodyX, bodyZ, bodyBrushes[fill_id]);
+                            //coord_body.Content = coordinatesFieldofViewReadable(tracked_bodies[new_id]);                            
 
                             break;
                         }
@@ -211,17 +221,28 @@ namespace RoomSensorSystem
             }
         }
 
-        private string coordinatesFieldofView(Body current_body)
+        private string coordinatesFieldofViewReadable(Body current_body)
         {
+            Tracked_Inhabitant inhabitant = coordinatesFieldofView(current_body);
+            String returnString = "Body Coordinates: X: " + inhabitant.x + " Y: " + inhabitant.y;
 
+            //inhabitant = null;
+
+
+            return returnString;
+        }
+
+        private Tracked_Inhabitant coordinatesFieldofView(Body current_body)
+        {
+            Tracked_Inhabitant inhabitant = new Tracked_Inhabitant();
             //From the Skeleton Joints we use as position the SpineMid coordinates
             // Remember that Z represents the depth and thus from the perspective of a Cartesian plane it represents Y from a top view
-            double coord_y = Math.Round(current_body.Joints[JointType.SpineMid].Position.Z, 2);
+            inhabitant.y = Math.Round(current_body.Joints[JointType.SpineMid].Position.Z, 2);
             // Remember that X represents side to side movement. The center of the camera marks origin (0,0). 
             // As the Kinect is mirrored we multiple by times -1
-            double coord_x = Math.Round(current_body.Joints[JointType.SpineMid].Position.X, 2) * (-1);
+            inhabitant.x = Math.Round(current_body.Joints[JointType.SpineMid].Position.X, 2) * (-1);
 
-            return "Body Coordinates: X: " + coord_x + " Y: " + coord_y;
+            return inhabitant;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -269,6 +290,8 @@ namespace RoomSensorSystem
 
             logConsole("confirmed Settings: ");
             logConsole($"URL: \"{newURL}\"    Interval-length: {newInterval}");
+
+            logConsole(bodies[0].ToString());
         }
 
         //logs the string to the window console
