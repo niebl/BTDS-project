@@ -131,7 +131,7 @@ class AoiDisplay {
     }
 
     updateCanvas(observation){
-        this.ctx.rect(0, 0, 7, 7);
+        this.ctx.rect(0, 0, 1, 1);
         this.ctx.fillStyle = "#ede177";
         this.ctx.fill();
 
@@ -147,10 +147,10 @@ class AoiDisplay {
             let bodyY = inhab.y
             let bodyX = inhab.x
 
+            console.log({bodyY, bodyX})
+
             bodyY = (bodyY+(roomscale/2))/roomscale
             bodyX = 1-(bodyX)/roomscale
-
-            console.log({bodyY, bodyX})
 
             this.ctx.arc(bodyY, bodyX, radius, 0, 2 * Math.PI, false);
             this.ctx.fill();
@@ -176,7 +176,7 @@ class AoiDisplay {
         //set canvas scale, so every object drawn is between 0 and 1
         this.ctx.scale(this.canvas[0].width,this.canvas[0].height)
 
-        this.ctx.rect(0, 0, 7, 7);
+        this.ctx.rect(0, 0, 1, 1);
         this.ctx.fillStyle = "#AAAAAA";
         this.ctx.fill();
     }

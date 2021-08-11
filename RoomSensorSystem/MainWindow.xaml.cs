@@ -208,6 +208,12 @@ namespace RoomSensorSystem
                                 {"inhabitants", inhabitantsPostString() }
                             };
 
+                            //String logString =
+                            //tracked_Inhabitants[0].tracked.ToString() + $" x:{tracked_Inhabitants[0].x},y:{tracked_Inhabitants[0].y}" + ", " +
+                            //tracked_Inhabitants[1].tracked.ToString() + $" x:{tracked_Inhabitants[1].x},y:{tracked_Inhabitants[1].y} " + ", .... ";
+
+                            //logConsole(logString);
+
                             var postContent = new FormUrlEncodedContent(postValues);
                             sendPost(post_Url, postContent);
                         }
@@ -261,15 +267,21 @@ namespace RoomSensorSystem
 
                 if(tracked_Inhabitants[inhabIndex].tracked) //if the body is currently tracked by the sensor
                 {
-                    var current_body = tracked_bodies[inhabIndex].Joints[JointType.SpineMid];
+                    try {
+                        var current_body = tracked_bodies[inhabIndex].Joints[JointType.SpineMid];
 
-                    //fill the Objects with the correct coordinates
-                    tracked_Inhabitants[inhabIndex].x = Math.Round(current_body.Position.Z, 2);
-                    tracked_Inhabitants[inhabIndex].y = Math.Round(current_body.Position.X, 2) * (-1);
+                        //fill the Objects with the correct coordinates
+                        tracked_Inhabitants[inhabIndex].x = Math.Round(current_body.Position.Z, 2);
+                        tracked_Inhabitants[inhabIndex].y = Math.Round(current_body.Position.X, 2) * (-1);
+                    } catch(ArgumentOutOfRangeException e)
+                    {
+                        logConsole("caught another");
+                    }
+
                 }
                 else
                 {
-                    break;
+                    continue;
                 }
 
             }
@@ -279,7 +291,7 @@ namespace RoomSensorSystem
         private async void sendPost(String URL, FormUrlEncodedContent content)
         {
             var response = await client.PostAsync(URL, content);
-            logConsole(await response.Content.ReadAsStringAsync());
+            //logConsole(await response.Content.ReadAsStringAsync());
         }
 
         private void DrawTracked_Bodies(List<Body> tracked_bodies)
@@ -325,6 +337,7 @@ namespace RoomSensorSystem
                 {
                     if (bodies_ids[exist_id] == current_id)
                     {
+                        
                         is_tracked = true;
                         createBody(bodyX, bodyZ, bodyBrushes[exist_id]);
                         //coord_body.Content = coordinatesFieldofViewReadable(tracked_bodies[exist_id]);
