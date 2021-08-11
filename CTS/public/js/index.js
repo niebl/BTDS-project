@@ -148,7 +148,7 @@ class AoiDisplay {
             let bodyX = inhab.x
 
             bodyY = (bodyY+(roomscale/2))/roomscale
-            bodyX = (bodyX)/roomscale
+            bodyX = 1-(bodyX)/roomscale
 
             console.log({bodyY, bodyX})
 

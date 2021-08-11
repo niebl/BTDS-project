@@ -233,11 +233,11 @@ namespace RoomSensorSystem
             {
                 if (tracked_Inhabitants[i].tracked)
                 {
+                    if (trailingComma) { outString = outString + ","; }
                     String bodyX = tracked_Inhabitants[i].x.ToString(nfi);
                     String bodyY = tracked_Inhabitants[i].y.ToString(nfi);
                     outString = outString + $"{{\"x\":{bodyX},\"y\":{bodyY},\"nearestNeighbor\":null}}";
 
-                    if (trailingComma){ outString = outString + ","; }
                     trailingComma = true;
                 }
             }
