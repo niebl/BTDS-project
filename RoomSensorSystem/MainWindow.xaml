@@ -14,8 +14,8 @@
                     </Canvas>
                 </Grid>
             </Border>
-            <Label  x:Name="coord_body" Content="Body Coordinates: " HorizontalAlignment="Left" Margin="50,10,0,0" VerticalAlignment="Top" Width="270"/>
-
+            <!--Label  x:Name="coord_body" Content="Body Coordinates: " HorizontalAlignment="Left" Margin="50,10,0,0" VerticalAlignment="Top" Width="1111" Height="105" FontSize="72"/-->
+            
             <TextBox x:Name="postUrl" HorizontalAlignment="Right" Height="23" Margin="0,82,72,0" TextWrapping="Wrap" Text="POST Url" VerticalAlignment="Top" Width="438"/>
             <TextBox x:Name="intervalLength" HorizontalAlignment="Right" Height="23" Margin="0,141,72,0" TextWrapping="Wrap" Text="1000" VerticalAlignment="Top" Width="438"/>
             <Button x:Name="confirmSettings" Content="Confirm Settings" HorizontalAlignment="Right" Height="23" Margin="0,179,358,0" VerticalAlignment="Top" Width="152" Click="confirmSettings_Click"/>

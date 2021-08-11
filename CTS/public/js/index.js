@@ -131,16 +131,28 @@ class AoiDisplay {
     }
 
     updateCanvas(observation){
-        this.ctx.rect(0, 0, 1, 1);
+        this.ctx.rect(0, 0, 7, 7);
         this.ctx.fillStyle = "#ede177";
         this.ctx.fill();
 
         //draw all inhabitants
-        let radius = 0.05;
+        let radius = 0.025;
         this.ctx.fillStyle = "red";
+
+        //the witdh and depth of the observed area in m
+        let roomscale = 4
         for(let inhab of this.observation.inhabitants){
             this.ctx.beginPath();
-            this.ctx.arc(inhab.x, inhab.y, radius, 0, 2 * Math.PI, false);
+
+            let bodyY = inhab.y
+            let bodyX = inhab.x
+
+            bodyY = (bodyY+(roomscale/2))/roomscale
+            bodyX = (bodyX)/roomscale
+
+            console.log({bodyY, bodyX})
+
+            this.ctx.arc(bodyY, bodyX, radius, 0, 2 * Math.PI, false);
             this.ctx.fill();
         }
 
@@ -164,7 +176,7 @@ class AoiDisplay {
         //set canvas scale, so every object drawn is between 0 and 1
         this.ctx.scale(this.canvas[0].width,this.canvas[0].height)
 
-        this.ctx.rect(0, 0, 1, 1);
+        this.ctx.rect(0, 0, 7, 7);
         this.ctx.fillStyle = "#AAAAAA";
         this.ctx.fill();
     }

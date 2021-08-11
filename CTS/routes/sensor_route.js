@@ -91,8 +91,6 @@ router.post('/rss/:sensorID', async (req,res) => {
             }
         }
 
-        console.log(rss)
-
         await rss.save();
 
         res.status(200);

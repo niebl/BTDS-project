@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using System.Globalization;
 using System.Net.Http;
 using Microsoft.Kinect;
 
@@ -32,12 +33,23 @@ namespace RoomSensorSystem
         // Reader to receive the information from the camera
         private MultiSourceFrameReader multiSourceFrameReader = null;
 
+        private Post_Interval intervalCounter = new Post_Interval(1000);
+        private String post_Url;
+
         //***************** FOR TRAJECTORIES //
 
         /// Array for the bodies
         private Body[] bodies = null;
         ulong[] bodies_ids = { 0, 0, 0, 0, 0, 0 };
-        private Tracked_Inhabitant[] tracked_Inhabitants = null;
+
+        private Tracked_Inhabitant[] tracked_Inhabitants = { 
+            new Tracked_Inhabitant(0,0, false),
+            new Tracked_Inhabitant(0,0, false),
+            new Tracked_Inhabitant(0,0, false),
+            new Tracked_Inhabitant(0,0, false),
+            new Tracked_Inhabitant(0,0, false),
+            new Tracked_Inhabitant(0,0, false),
+        };
 
 
         //Data for each body
@@ -74,6 +86,44 @@ namespace RoomSensorSystem
             InitializeComponent();
         }
 
+        class Tracked_Inhabitant
+        {
+            public double x { get; set; }
+            public double y { get; set; }
+            public bool tracked { get; set; }
+            //public double nearestNeighbor { get; set; }
+
+            public Tracked_Inhabitant(double x, double y, bool tracked)
+            {
+                this.x = x;
+                this.y = y;
+                this.tracked = tracked;
+            }
+
+            public double calculateDistance(Tracked_Inhabitant neighbour)
+            {
+                double outData = 1.7976931348623157E+308;
+
+                return outData;
+            }
+
+        }
+
+        public class Post_Interval
+        {
+            public bool active { get; set; }
+            public int interval { get; set; } //in milliseconds
+            public long lastTick { get; set; }
+
+            public Post_Interval(int interval)
+            {
+                this.interval = interval;
+                this.active = false;
+                this.lastTick = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond; //last tick in UNIX milliseconds
+            }
+
+        }
+
         // Colors for the positional ellipses
         private void bodyIndexColors()
         {
@@ -108,15 +158,6 @@ namespace RoomSensorSystem
                 return this.imageSource;
             }
         }
-
-        public struct Tracked_Inhabitant
-        {
-            public double x;
-            public double y;
-            
-            //later when the other stuff works
-            //public double nearestNeighbor;
-        }
         
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
@@ -145,13 +186,105 @@ namespace RoomSensorSystem
 
                     // Create bodies in the scene
                     DrawTracked_Bodies(tracked_bodies);
+                    bodies_To_Inhabitants(tracked_bodies);
+
+
+                    //Check the timer and see if it is necessary to send a new POST
+                    if (intervalCounter.active)
+                    {
+                        long nextTick = intervalCounter.lastTick + intervalCounter.interval;
+                        long now = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+                        if (now >= nextTick)
+                        {
+                            intervalCounter.lastTick = now;
+
+                            DateTime currentTime = DateTime.Now;
+                            long currentUnix = ((DateTimeOffset)currentTime).ToUnixTimeSeconds();
+
+                            //Send the post
+                            var postValues = new Dictionary<string, string>
+                            {
+                                {"timestamp", currentUnix.ToString() },
+                                {"inhabitants", inhabitantsPostString() }
+                            };
+
+                            var postContent = new FormUrlEncodedContent(postValues);
+                            sendPost(post_Url, postContent);
+                        }
+                    }
 
                 }
             }
         }
 
+        /**
+         * Very quick and dirty function that creates a string which contains the positions of every tracked body in the room.
+         * could be a LOT more elegant, but yolo.
+         */
+        private String inhabitantsPostString()
+        {
+            String outString = "[";
+
+            NumberFormatInfo nfi = new NumberFormatInfo();
+            nfi.NumberDecimalSeparator = ".";
+
+            bool trailingComma = false;
+            for (int i = 0; i < 6; i++)
+            {
+                if (tracked_Inhabitants[i].tracked)
+                {
+                    String bodyX = tracked_Inhabitants[i].x.ToString(nfi);
+                    String bodyY = tracked_Inhabitants[i].y.ToString(nfi);
+                    outString = outString + $"{{\"x\":{bodyX},\"y\":{bodyY},\"nearestNeighbor\":null}}";
+
+                    if (trailingComma){ outString = outString + ","; }
+                    trailingComma = true;
+                }
+            }
+
+            outString = outString + "]";
+            return outString;
+        }
+
+        /**
+         * This function will take the list of tracked bodies that arrives from the Multisourceframe
+         * and turns it into a list of Tracked_Inhabitant, which can later be used to send in the
+         * POST to the server
+        */
+        private void bodies_To_Inhabitants(List<Body> tracked_bodies)
+        {
+            //the loop assigning bodies_ids is not necessary if DrawTracked_Bodies is called before
+
+            for(int inhabIndex = 0; inhabIndex < 6; inhabIndex++)
+            {
+                tracked_Inhabitants[inhabIndex].tracked = (bodies_ids[inhabIndex] != 0);
+
+                if(tracked_Inhabitants[inhabIndex].tracked) //if the body is currently tracked by the sensor
+                {
+                    var current_body = tracked_bodies[inhabIndex].Joints[JointType.SpineMid];
+
+                    //fill the Objects with the correct coordinates
+                    tracked_Inhabitants[inhabIndex].x = Math.Round(current_body.Position.Z, 2);
+                    tracked_Inhabitants[inhabIndex].y = Math.Round(current_body.Position.X, 2) * (-1);
+                }
+                else
+                {
+                    break;
+                }
+
+            }
+            
+        }
+
+        private async void sendPost(String URL, FormUrlEncodedContent content)
+        {
+            var response = await client.PostAsync(URL, content);
+            logConsole(await response.Content.ReadAsStringAsync());
+        }
+
         private void DrawTracked_Bodies(List<Body> tracked_bodies)
         {
+            //loop assigning bodies_ids
             for (int last_id = 0; last_id < 6; last_id++)
             {
                 if (bodies_ids[last_id] == 0)
@@ -234,13 +367,15 @@ namespace RoomSensorSystem
 
         private Tracked_Inhabitant coordinatesFieldofView(Body current_body)
         {
-            Tracked_Inhabitant inhabitant = new Tracked_Inhabitant();
+            Tracked_Inhabitant inhabitant = new Tracked_Inhabitant(
+                Math.Round(current_body.Joints[JointType.SpineMid].Position.X, 2) * (-1), //x
+                Math.Round(current_body.Joints[JointType.SpineMid].Position.Z, 2), //y
+                true
+                );
             //From the Skeleton Joints we use as position the SpineMid coordinates
             // Remember that Z represents the depth and thus from the perspective of a Cartesian plane it represents Y from a top view
-            inhabitant.y = Math.Round(current_body.Joints[JointType.SpineMid].Position.Z, 2);
             // Remember that X represents side to side movement. The center of the camera marks origin (0,0). 
             // As the Kinect is mirrored we multiple by times -1
-            inhabitant.x = Math.Round(current_body.Joints[JointType.SpineMid].Position.X, 2) * (-1);
 
             return inhabitant;
         }
@@ -291,7 +426,9 @@ namespace RoomSensorSystem
             logConsole("confirmed Settings: ");
             logConsole($"URL: \"{newURL}\"    Interval-length: {newInterval}");
 
-            logConsole(bodies[0].ToString());
+            post_Url = newURL;
+            intervalCounter.interval = newInterval;
+            intervalCounter.active = true;
         }
 
         //logs the string to the window console
