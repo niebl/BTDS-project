@@ -267,16 +267,14 @@ namespace RoomSensorSystem
 
                 if(tracked_Inhabitants[inhabIndex].tracked) //if the body is currently tracked by the sensor
                 {
-                    try {
-                        var current_body = tracked_bodies[inhabIndex].Joints[JointType.SpineMid];
+                    //we search for the body with the corresponding ID
+                    Body tracked_body = tracked_bodies.Find(x => x.TrackingId == bodies_ids[inhabIndex]);
 
-                        //fill the Objects with the correct coordinates
-                        tracked_Inhabitants[inhabIndex].x = Math.Round(current_body.Position.Z, 2);
-                        tracked_Inhabitants[inhabIndex].y = Math.Round(current_body.Position.X, 2) * (-1);
-                    } catch(ArgumentOutOfRangeException e)
-                    {
-                        logConsole("caught another");
-                    }
+                    var current_body = tracked_body.Joints[JointType.SpineMid];
+
+                    //fill the Objects with the correct coordinates
+                    tracked_Inhabitants[inhabIndex].x = Math.Round(current_body.Position.Z, 2);
+                    tracked_Inhabitants[inhabIndex].y = Math.Round(current_body.Position.X, 2) * (-1);
 
                 }
                 else
