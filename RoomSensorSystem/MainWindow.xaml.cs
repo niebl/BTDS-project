@@ -91,20 +91,43 @@ namespace RoomSensorSystem
             public double x { get; set; }
             public double y { get; set; }
             public bool tracked { get; set; }
-            //public double nearestNeighbor { get; set; }
+            public double nearestNeighbor { get; set; }
 
             public Tracked_Inhabitant(double x, double y, bool tracked)
             {
                 this.x = x;
                 this.y = y;
                 this.tracked = tracked;
+                this.nearestNeighbor = double.MaxValue;
             }
 
-            public double calculateDistance(Tracked_Inhabitant neighbour)
+            private double calculateDistance(Tracked_Inhabitant them)
             {
-                double outData = 1.7976931348623157E+308;
+                double distance = Math.Sqrt(
+                        Math.Pow(them.x-this.x,2) + Math.Pow(them.y-this.y, 2)
+                    );
 
-                return outData;
+                return distance;
+            }
+
+            public double calculateNearestNeighbor(Tracked_Inhabitant[] neighbors)
+            {
+                double nearestNeighbor = double.MaxValue;
+
+                for(int i = 0; i < 6; i++)
+                {
+                    if (neighbors[i].tracked)
+                    {
+                        double distance = this.calculateDistance(neighbors[i]);
+                        if(distance > 0)
+                        {
+                            nearestNeighbor = distance;
+                        }
+                    }
+                }
+
+                this.nearestNeighbor = nearestNeighbor;
+                return nearestNeighbor;
             }
 
         }
@@ -187,7 +210,7 @@ namespace RoomSensorSystem
                     // Create bodies in the scene
                     DrawTracked_Bodies(tracked_bodies);
                     bodies_To_Inhabitants(tracked_bodies);
-
+                    calculateNearestNeighbors();
 
                     //Check the timer and see if it is necessary to send a new POST
                     if (intervalCounter.active)
@@ -242,7 +265,9 @@ namespace RoomSensorSystem
                     if (trailingComma) { outString = outString + ","; }
                     String bodyX = tracked_Inhabitants[i].x.ToString(nfi);
                     String bodyY = tracked_Inhabitants[i].y.ToString(nfi);
-                    outString = outString + $"{{\"x\":{bodyX},\"y\":{bodyY},\"nearestNeighbor\":null}}";
+                    String neighbor = tracked_Inhabitants[i].nearestNeighbor.ToString(nfi);
+
+                    outString = outString + $"{{\"x\":{bodyX},\"y\":{bodyY},\"nearestNeighbor\":{neighbor}}}";
 
                     trailingComma = true;
                 }
@@ -284,6 +309,14 @@ namespace RoomSensorSystem
 
             }
             
+        }
+
+        private void calculateNearestNeighbors()
+        {
+            for(int i = 0; i < 6; i++)
+            {
+                tracked_Inhabitants[i].calculateNearestNeighbor(tracked_Inhabitants);
+            }
         }
 
         private async void sendPost(String URL, FormUrlEncodedContent content)
