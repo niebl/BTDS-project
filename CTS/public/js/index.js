@@ -130,7 +130,7 @@ class AoiDisplay {
         this.socket.onmessage = (msg)=>{
             this.observation = JSON.parse(msg.data);
     
-            this.updateCanvas(this.observation)
+            this.updateCanvas(this.observation);
         }
 
         this.socket.onopen = ()=>{
@@ -143,21 +143,28 @@ class AoiDisplay {
         //proof that the physical distances are okay.
         let distanceKept = true;
         let BG_col = "#ede177"
+        let minDist = Number.MAX_VALUE;
 
         for(let inhab of this.observation.inhabitants){
             try{
-                if((inhab.nearestNeighbor != null) && (inhab.nearestNeighbor <= ENV_VARS.distance)){
-                    //alert the user, in this case just change BG-col of view
-                    distanceKept = false;
-                    break;
+                if(inhab.nearestNeighbor != null){
+
+                    minDist = Math.min(inhab.nearestNeighbor, minDist);
+
+                    if((inhab.nearestNeighbor <= ENV_VARS.distance)){
+                        //alert the user, in this case just change BG-col of view
+                        distanceKept = false;
+                    }
                 }
             } catch(e) {
                 console.log("minimum distance not yet defined");
             }
         }
 
+        minDist = Math.trunc(minDist * 100)/100
+
         if(!distanceKept){
-            BG_col = "#e03828";
+            BG_col = "#ff8282";
         }
 
 
@@ -193,6 +200,11 @@ class AoiDisplay {
         time = time.toLocaleTimeString()
 
         this.ctx.fillText(time,10,20);
+
+        let minDistString = `min. dist.: ${minDist} m`
+        this.ctx.fillText(minDistString, 10 ,this.canvas[0].height-20)
+
+
         this.ctx.scale(this.canvas[0].width,this.canvas[0].height)
     }
 
