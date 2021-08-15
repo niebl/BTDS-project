@@ -1,5 +1,9 @@
+const ENV_VARS = {
+};
 
 async function main(){
+    await refreshDistance();
+
     //get all the aoi-canvases and initialise their aoiDisplay
     let aois = $('.aoi_canvas');
     let aoiDisplays = [];
@@ -11,6 +15,11 @@ async function main(){
 
     let building = new Building();
     await building.initialise();
+}
+
+async function refreshDistance(){
+    ENV_VARS.distance = await fetch("/config/distance").then(res => res.json());
+    return ENV_VARS.distance;
 }
 
 //Building-object downloads all room info, room objects are subscribing to it
@@ -131,8 +140,29 @@ class AoiDisplay {
     }
 
     updateCanvas(observation){
+        //proof that the physical distances are okay.
+        let distanceKept = true;
+        let BG_col = "#ede177"
+
+        for(let inhab of this.observation.inhabitants){
+            try{
+                if((inhab.nearestNeighbor != null) && (inhab.nearestNeighbor <= ENV_VARS.distance)){
+                    //alert the user, in this case just change BG-col of view
+                    distanceKept = false;
+                    break;
+                }
+            } catch(e) {
+                console.log("minimum distance not yet defined");
+            }
+        }
+
+        if(!distanceKept){
+            BG_col = "#e03828";
+        }
+
+
         this.ctx.rect(0, 0, 1, 1);
-        this.ctx.fillStyle = "#ede177";
+        this.ctx.fillStyle = BG_col;
         this.ctx.fill();
 
         //draw all inhabitants
@@ -146,8 +176,6 @@ class AoiDisplay {
 
             let bodyY = inhab.y
             let bodyX = inhab.x
-
-            console.log({bodyY, bodyX})
 
             bodyY = (bodyY+(roomscale/2))/roomscale
             bodyX = 1-(bodyX)/roomscale

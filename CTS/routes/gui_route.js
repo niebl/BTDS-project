@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const router = express.Router();
 
@@ -18,7 +19,7 @@ router.get('/', async (req,res) => {
         await populateRSS(room);
     }
 
-    res.render('index', {rooms: building});
+    res.render('index', {rooms: building, distance: process.env.MINIMUM_DISTANCE});
 })
 
 async function populatePss(room){

@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const router = express.Router();
 
@@ -10,8 +11,9 @@ router.get('/', async (req,res) => {
     const rooms = await Room.find();
     const aois = await Aoi.find();
     const passages = await Passage.find();
+    const distance = process.env.MINIMUM_DISTANCE;
 
-    res.render('config', {rooms: rooms, aois: aois, passages: passages});
+    res.render('config', {rooms: rooms, aois: aois, passages: passages, minDistance: distance});
 })
 
 router.post('/room', async (req,res)=>{
@@ -92,6 +94,15 @@ router.post('/aoi', async (req,res)=>{
     } catch(e) {
         res.send(e);
     }
+});
+
+router.post('/distance', async (req,res)=>{
+    process.env.MINIMUM_DISTANCE = req.body.distance || 1.5;
+    res.redirect("/config/");
+});
+
+router.get('/distance', async (req,res)=>{
+    res.send(process.env.MINIMUM_DISTANCE);
 });
 
 /**

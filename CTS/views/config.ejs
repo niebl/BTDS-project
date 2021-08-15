@@ -78,7 +78,19 @@
                     </tbody>
                 </table>
             </div>
-            
+
+            <div class="col-md-6 border">
+                <b>set minimum physical distance</b>
+                <form action="./distance" method="post">
+
+                    <div class="form-group">
+                        <label>Distance (m)</label>
+                        <input type="text" class="form-control" name="distance" placeholder="<%= minDistance %>">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+
+                </form>
+            </div>
             
             <div class="col-md-6 border">
                 <b>Register Room</b>
