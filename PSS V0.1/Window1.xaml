@@ -8,7 +8,11 @@
         Title="Trajectory Viewer" Height="800" Width="1200" Loaded="Window_Loaded">
     <Grid x:Name="myGrid">
         <Border BorderBrush="Purple" BorderThickness="1" Margin="50,50,50,50" >
-            <Canvas x:Name="fieldOfView">
+            <Canvas x:Name="fieldOfView" Height="424" Width="512">
+                <TextBox Name ="tst1" Height="23" TextWrapping="Wrap" Text="TextBox1" Width="120" Canvas.Left="-226" Canvas.Top="88"/>
+                <TextBox Name ="tst2" Height="23" TextWrapping="Wrap" Text="TextBox2" Width="120" Canvas.Left="-226" Canvas.Top="122"/>
+                <TextBox Name ="tst3" Height="23" TextWrapping="Wrap" Text="TextBox3" Width="120" Canvas.Left="-226" Canvas.Top="150"/>
+                <TextBox Name ="tst4" Height="23" TextWrapping="Wrap" Text="TextBox4" Width="120" Canvas.Left="-226" Canvas.Top="186"/>
             </Canvas>
         </Border>
         <Label  x:Name="coord_body" Content="Body Coordinates: " HorizontalAlignment="Left" Margin="50,10,0,0" VerticalAlignment="Top" Width="270"/>

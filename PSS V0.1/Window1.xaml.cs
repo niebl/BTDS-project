@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Drawing;
 
 //Kinect Libraries
 using Microsoft.Kinect;
@@ -40,14 +41,17 @@ namespace PSS_V0._1
         private Body[] bodies = null;
         ulong[] bodies_ids = { 0, 0, 0, 0, 0, 0 };
 
-
+        
         //Data for each body
-        List<Brush> bodyBrushes = new List<Brush>();
+        List<System.Windows.Media.Brush> bodyBrushes = new List<System.Windows.Media.Brush>();
         public double dperPixZ = 0;
         public double dperPixX = 0;
 
-        public Window1()
+        public double[,] linePoints;
+        public Window1(double[,] line)
         {
+            
+
             // Initialize the sensor
             this.kinectSensor = KinectSensor.GetDefault();
 
@@ -67,6 +71,8 @@ namespace PSS_V0._1
             this.bodyIndexColors();
             // open the sensor
             this.kinectSensor.Open();
+            //Points from monitoring Line
+            this.linePoints = line;
 
             InitializeComponent();
         }
@@ -75,17 +81,17 @@ namespace PSS_V0._1
         private void bodyIndexColors()
         {
 
-            this.bodyBrushes.Add(Brushes.Red);
-            this.bodyBrushes.Add(Brushes.Black);
-            this.bodyBrushes.Add(Brushes.Green);
-            this.bodyBrushes.Add(Brushes.Blue);
-            this.bodyBrushes.Add(Brushes.Indigo);
-            this.bodyBrushes.Add(Brushes.Violet);
+            this.bodyBrushes.Add(System.Windows.Media.Brushes.Red);
+            this.bodyBrushes.Add(System.Windows.Media.Brushes.Black);
+            this.bodyBrushes.Add(System.Windows.Media.Brushes.Green);
+            this.bodyBrushes.Add(System.Windows.Media.Brushes.Blue);
+            this.bodyBrushes.Add(System.Windows.Media.Brushes.Indigo);
+            this.bodyBrushes.Add(System.Windows.Media.Brushes.Violet);
 
         }
 
         //Create each ellipse (circle) used to show the position of the person in the camera's field of view
-        private Ellipse createBody(double coord_x, double coord_y, Brush brush)
+        private Ellipse createBody(double coord_x, double coord_y, System.Windows.Media.Brush brush)
         {
             Ellipse ellipse = new Ellipse();
             ellipse.Fill = brush;
@@ -97,6 +103,21 @@ namespace PSS_V0._1
             return ellipse;
         }
 
+        private Line createLine(double[,] points)
+        {
+            Line myLine = new Line();
+            dperPixZ = (double)fieldOfView.ActualHeight / 5000;
+            myLine.Stroke = System.Windows.Media.Brushes.LightSteelBlue;
+            myLine.X1 = points[0,0];
+            myLine.X2 = points[1,0];
+            myLine.Y1 = points[0,2] * dperPixZ * 1000;
+            myLine.Y2 = points[1,2] * dperPixZ * 1000;
+            myLine.HorizontalAlignment = HorizontalAlignment.Left;
+            myLine.VerticalAlignment = VerticalAlignment.Center;
+            myLine.StrokeThickness = 2;
+            this.fieldOfView.Children.Add(myLine);
+            return myLine;
+        }
         public ImageSource ImageSource
         {
             get
@@ -129,16 +150,22 @@ namespace PSS_V0._1
                         ellipse.Width = 1;
                         ellipse.Height = 1;
                     }
+                    tst1.Text = Convert.ToString(linePoints[0, 0]);
+                    tst2.Text = Convert.ToString(linePoints[0, 2]);
+                    tst3.Text = Convert.ToString(linePoints[1, 0]);
+                    tst4.Text = Convert.ToString(linePoints[1, 2]);
 
                     // Create bodies in the scene
+                    createLine(linePoints);
                     DrawTracked_Bodies(tracked_bodies);
+                    
 
                 }
             }
         }
         //Needs two set points as start and endpoint to draw a line where the monitoring takes place
         
-        
+       
         private void DrawTracked_Bodies(List<Body> tracked_bodies)
         {
             for (int last_id = 0; last_id < 6; last_id++)
@@ -235,19 +262,19 @@ namespace PSS_V0._1
             int x1 = Convert.ToInt16(canvasWidth / 2 - (canvasHeight * Math.Sin(Math.PI / 180) * 35));
 
             // 3 Verticed for the field of view
-            myPointCollection.Add(new Point(x, canvasWidth / 2));
-            myPointCollection.Add(new Point(x1, canvasWidth / 2));
-            myPointCollection.Add(new Point(canvasWidth / 2, canvasHeight));
+            myPointCollection.Add(new System.Windows.Point(x, canvasWidth / 2));
+            myPointCollection.Add(new System.Windows.Point(x1, canvasWidth / 2));
+            myPointCollection.Add(new System.Windows.Point(canvasWidth / 2, canvasHeight));
 
             //Creating the triangle from the 3 vertices
 
             Polygon myPolygon = new Polygon();
             myPolygon.Points = myPointCollection;
-            myPolygon.Fill = Brushes.Purple;
+            myPolygon.Fill = System.Windows.Media.Brushes.Purple;
             myPolygon.Width = canvasWidth;
             myPolygon.Height = canvasHeight;
             myPolygon.Stretch = Stretch.Fill;
-            myPolygon.Stroke = Brushes.Purple;
+            myPolygon.Stroke = System.Windows.Media.Brushes.Purple;
             myPolygon.StrokeThickness = 1;
             myPolygon.Opacity = 0.2;
 

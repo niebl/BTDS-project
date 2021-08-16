@@ -67,9 +67,10 @@ namespace PSS_V0._1
 
         private CoordinateMapper coordinateMapper = null;
 
-        //test
-        public DepthFrame workFrame;
+        public Boolean wasClicked = false;
+        public Boolean strokeSaved = false;
 
+        public double[,] savedStroke { get; set; }
 
         public MainWindow()
         {
@@ -166,28 +167,45 @@ namespace PSS_V0._1
                     break;
 
                 case DisplayFrameType.Depth:
-                    using (DepthFrame depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame())
-                    {
-                        if (depthFrame != null)
+                    if (wasClicked == false) { 
+                        using (DepthFrame depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame())
                         {
-                            double x = 256;
-                            double y = 212;
+                            
+                            
+                            ShowDepthFrame(depthFrame);
+                        }
+                    }
+                    else
+                    {
+                        using (DepthFrame depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame())
+                        {
+                            strokes = ic.Strokes.Clone();
+                            
+                            // i counts the stylusPoints in the saved Stroke
+                            int i = 0;
+                            foreach (StylusPoint p in strokes[0].StylusPoints)
+                                {
+                                    i++;
+                                }
 
-
-                            FrameDescription depthFrameDescription = depthFrame.FrameDescription;
-
-                            int depthWidth = depthFrameDescription.Width;
-                            int depthHeight = depthFrameDescription.Height;
-
-                            ushort[] depthframeData = new ushort[depthWidth * depthHeight];
-                            depthFrame.CopyFrameDataToArray(depthframeData);
-                            CameraSpacePoint[] csp = new CameraSpacePoint[512 * 424];
-                            this.coordinateMapper.MapDepthFrameToCameraSpace(depthframeData, csp);
-
-                            // Depth(Z Position) of specified coordinate
-                            float DepthPosition = csp[(512 * Convert.ToInt16(y)) + Convert.ToInt16(x)].Z;
-                            //testbox.Text = Convert.ToString(DepthPosition);
-                            workFrame = depthFrame;
+                            double[,] q = new double[i, 3];
+                            double[,] t = new double[2, 3];
+                            int k = 0;
+                            foreach (StylusPoint p in strokes[0].StylusPoints)
+                                {
+                                    q[k, 0] = GetX(p);
+                                    q[k, 1] = GetY(p);
+                                    q[k, 2] = GetZ(p, depthFrame);
+                                    k++;
+                                }
+                            t[0, 0] = q[0, 0];
+                            t[0, 1] = q[0, 1];
+                            t[0, 2] = q[0, 2];
+                            t[1, 0] = q[k - 1, 0];
+                            t[1, 1] = q[k - 1, 1];
+                            t[1, 2] = q[k - 1, 2];
+                            savedStroke = t;
+                            wasClicked = false;
                             ShowDepthFrame(depthFrame);
                         }
                     }
@@ -300,24 +318,7 @@ namespace PSS_V0._1
             FrameDisplayImage.Source = this.bitmap;
         }
 
-        private void Button_Infrared(object sender, RoutedEventArgs e)
-        {
-            SetupCurrentDisplay(DisplayFrameType.Infrared);
-        }
-
-        private void Button_Depth(object sender, RoutedEventArgs e)
-        {
-            SetupCurrentDisplay(DisplayFrameType.Depth);
-        }
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            Save_Stroke();
-
-
-        }
-
-        //Strokes
-        private void Save_Stroke()
+        private void Button_Submit(object sender, RoutedEventArgs e)
         {
             strokes = ic.Strokes.Clone();
             if (strokes.Count() > 1)
@@ -328,6 +329,54 @@ namespace PSS_V0._1
                 MessageBoxButtons button1 = MessageBoxButtons.OK;
                 //Display the MessageBox
                 var result2 = System.Windows.Forms.MessageBox.Show(message, caption, button1);
+
+            }
+            else if (strokes.Count()==0)
+            {
+                //Initialize the variables to pass to the MessageBox.Show method
+                string message = "No line found";
+                string caption = "Error detected in Input";
+                MessageBoxButtons button1 = MessageBoxButtons.OK;
+                //Display the MessageBox
+                var result2 = System.Windows.Forms.MessageBox.Show(message, caption, button1);
+                
+            }
+            else if(strokeSaved ==true) 
+            { 
+            Window1 window = new Window1(savedStroke);
+            window.Show();
+            this.Close();  
+            }
+            else {
+                //Initialize the variables to pass to the MessageBox.Show method
+                string message = "Please Save your line";
+                string caption = "Error detected in Input";
+                MessageBoxButtons button1 = MessageBoxButtons.OK;
+                //Display the MessageBox
+                var result2 = System.Windows.Forms.MessageBox.Show(message, caption, button1);
+            }
+        }
+        private void Button_Infrared(object sender, RoutedEventArgs e)
+        {
+            SetupCurrentDisplay(DisplayFrameType.Infrared);
+        }
+
+        private void Button_Depth(object sender, RoutedEventArgs e)
+        {
+            SetupCurrentDisplay(DisplayFrameType.Depth);
+        }
+        private void Button_Save(object sender, RoutedEventArgs e)
+        {
+            strokes = ic.Strokes.Clone();
+            if (strokes.Count() > 1)
+            {
+                //Initialize the variables to pass to the MessageBox.Show method
+                string message = "You can only process 1 line, you have entered " + strokes.Count() + " lines";
+                string caption = "Error detected in Input";
+                MessageBoxButtons button1 = MessageBoxButtons.OK;
+                //Display the MessageBox
+                var result2 = System.Windows.Forms.MessageBox.Show(message, caption, button1);
+
             }
             if (strokes.Count() == 0)
             {
@@ -336,26 +385,17 @@ namespace PSS_V0._1
                 MessageBoxButtons button2 = MessageBoxButtons.OK;
                 //Display the MessageBox
                 var result1 = System.Windows.Forms.MessageBox.Show(message, caption, button2);
+
             }
             else
             {
-                // i counts the stylusPoints in the saved Stroke
-                int i = 0;
-                foreach (StylusPoint p in strokes[0].StylusPoints) {
-                    i++;
-                }
-
-                double[,] q = new double[i,3];
-                int k = 0;
-                foreach(StylusPoint p in strokes[0].StylusPoints){
-                    q[k, 0] = GetX(p);
-                    q[k, 1] = GetY(p);
-                    q[k, 2] = GetZ(p, workFrame);
-                    k++;
-                }
                 
+                wasClicked = true;
+                strokeSaved = true;
             }
         }
+
+        
         private double GetX(StylusPoint sp)
         {
             return sp.X;
@@ -364,24 +404,22 @@ namespace PSS_V0._1
         {
             return 424 - sp.Y;
         }
-        private double GetZ(StylusPoint sp, DepthFrame workframe)
+        private double GetZ(StylusPoint sp, DepthFrame depthFrame)
         {
-
-            FrameDescription depthFrameDescription = workFrame.FrameDescription;
-
-            int depthWidth = depthFrameDescription.Width;
-            int depthHeight = depthFrameDescription.Height;
+            int depthWidth = depthFrame.FrameDescription.Width;
+            int depthHeight = depthFrame.FrameDescription.Height;
 
             ushort[] depthframeData = new ushort[depthWidth * depthHeight];
-            workFrame.CopyFrameDataToArray(depthframeData);
+            depthFrame.CopyFrameDataToArray(depthframeData);
             CameraSpacePoint[] csp = new CameraSpacePoint[512 * 424];
             this.coordinateMapper.MapDepthFrameToCameraSpace(depthframeData, csp);
 
-            // Depth(Z Position) of specified coordinate
+            //Depth(Z Position) of specified coordinate
             double DepthPosition = csp[(512 * Convert.ToInt16(424-sp.Y)) + Convert.ToInt16(sp.X)].Z;
-
+           
             return DepthPosition;
         }
+        
 
     }
 }
