@@ -39,7 +39,7 @@ router.ws('/rss/:sensorID', async function(ws, req) {
 
     //on message, start periodic updates
     ws.on('message', async (msg)=>{
-        console.log(msg)
+        console.log(`socket received: ${msg}`)
 
         if(msg == "init"){
             console.log(`initialising socket ${req.params.sensorID}`);
@@ -77,21 +77,24 @@ router.ws('/rss/:sensorID', async function(ws, req) {
 //TODO: evtl observation validaten
 router.post('/rss/:sensorID', async (req,res) => {
     try{
-        console.log(req.body)
 
         let rss = await Aoi.find({sensorID: req.params.sensorID});
         rss = rss[0];
 
         let params = req.body;
 
+        console.log(params)
+
 
         if((rss.observation.timestamp < params.timestamp) 
-        || (rss.observation == undefined)){
+            || (rss.observation == undefined)){
             rss.observation = {
                 timestamp: params.timestamp,
                 inhabitants: JSON.parse(params.inhabitants)
             }
         }
+
+        await rssUpdateRoomInhabitants(rss);
 
         await rss.save();
 
@@ -125,6 +128,8 @@ router.post('/pss/:sensorID', async (req,res) => {
     }
 })
 
+// UTILITY FUNCTIONS
+
 /**
  * function that infers new room inhabitant numbers upon event
  * in: means someone passes from fromRoom to toRoom
@@ -134,13 +139,13 @@ router.post('/pss/:sensorID', async (req,res) => {
  async function processPssEvent(params, pss){
     //TODO: specify what the request will have to look like
     if(params.event == "in"){
-        let out = await updateRoomInhabitants(
+        let out = await pssUpdateRoomInhabitants(
             params, params.toRoom, params.fromRoom, pss, 1
             );
         return out;
 
     } else if(params.event == "out"){
-        let out = await updateRoomInhabitants(
+        let out = await pssUpdateRoomInhabitants(
             params, params.fromRoom, params.toRoom, pss, 1
             );
         return out;
@@ -151,7 +156,7 @@ router.post('/pss/:sensorID', async (req,res) => {
 }
 
 //TODO: wäre evtl. gut das hier zu refaktorisieren
-async function updateRoomInhabitants(params, to, from, pss, number){
+async function pssUpdateRoomInhabitants(params, to, from, pss, number){
     //dummy object to assign to rooms that don't exist (outside)
     let toRoom = {
         description: "outside",
@@ -217,6 +222,26 @@ async function updateRoomInhabitants(params, to, from, pss, number){
     await toRoom.save();
     await fromRoom.save();
     return returnObject;
+}
+
+async function rssUpdateRoomInhabitants(rss){
+    //update the observed room inhabitants based on the amount of people observed at once
+    let aoiRoom = await Room.findById(rss.inRoom)
+    aoiRoom.inhabitants_observed = rss.observation.inhabitants.length;
+    aoiRoom.lastEvent = Date.now()/1000;
+
+    console.log(aoiRoom);
+
+    //NUMBER CORRECTIONS:
+    //choose largest between inferred, naive and observed to get the inferred number
+    aoiRoom.inhabitants_inferred = Math.max(
+        aoiRoom.inhabitants_naive, 
+        aoiRoom.inhabitants_inferred,
+        aoiRoom.inhabitants_observed
+    );
+
+    await aoiRoom.save();
+    return true
 }
 
 module.exports = router;

@@ -14,6 +14,7 @@ class AoiMessenger {
     }
 
     async initialise(newInterval){
+        console.log("initialising socket update loop")
         let interval = newInterval || this.interval;
 
         //once this sensor is awaited, it can also be used.

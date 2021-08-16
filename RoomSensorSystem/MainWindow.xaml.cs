@@ -115,7 +115,7 @@ namespace RoomSensorSystem
                 double nearestNeighbor = double.MaxValue;
 
                 for(int i = 0; i < 6; i++)
-                {
+                {   
                     if (neighbors[i].tracked)
                     {
                         double distance = this.calculateDistance(neighbors[i]);
@@ -182,7 +182,6 @@ namespace RoomSensorSystem
             }
         }
         
-
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
             var reference = e.FrameReference.AcquireFrame();
