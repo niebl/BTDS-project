@@ -74,7 +74,6 @@ router.post('/passage', async (req,res)=>{
     }
 });
 
-
 router.post('/aoi', async (req,res)=>{
     //delete aoi if exists.
     await Aoi.deleteOne({sensorID: req.body.sensorID});
@@ -104,6 +103,35 @@ router.post('/distance', async (req,res)=>{
 router.get('/distance', async (req,res)=>{
     res.send(process.env.MINIMUM_DISTANCE);
 });
+
+router.post('/reset', async (req,res) => {
+    console.log("resetting all database entries");
+    
+    let rooms = await Room.find();
+    let aois = await Aoi.find();
+
+    for(let room of rooms){
+        room.inhabitants_inferred = 0;
+        room.inhabitants_naive = 0;
+        room.inhabitants_observed = 0;
+
+        room.lastEvent = 0;
+
+        room.save();
+    }
+
+    for(let aoi of aois){
+        aoi.observation = {
+            "timestamp" : "0",
+            "inhabitants": []  
+        }
+
+        aoi.save();
+    }
+
+    res.status(200);
+    res.send(rooms.concat(aois))
+})
 
 /**
  * Function that takes mongodb _id of room and rss and assigns room to rss
