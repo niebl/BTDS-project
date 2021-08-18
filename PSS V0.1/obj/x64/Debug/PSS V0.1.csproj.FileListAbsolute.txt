@@ -1,0 +1,21 @@
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\bin\x64\Debug\PSS V0.1.exe.config
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\bin\x64\Debug\PSS V0.1.exe
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\bin\x64\Debug\PSS V0.1.pdb
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\bin\x64\Debug\Microsoft.Kinect.dll
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\bin\x64\Debug\Microsoft.Kinect.xml
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\PSS V0.1.csproj.AssemblyReference.cache
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\MainWindow.g.cs
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\App.g.cs
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\PSS V0.1_MarkupCompile.cache
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\PSS V0.1_MarkupCompile.lref
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\MainWindow.baml
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\PSS V0.1.g.resources
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\PSS_V0._1.Properties.Resources.resources
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\PSS V0.1.csproj.GenerateResource.cache
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\PSS V0.1.csproj.CoreCompileInputs.cache
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\PSS V0.1.csproj.CopyComplete
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\PSS V0.1.exe
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\PSS V0.1.pdb
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\Window1.g.cs
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\obj\x64\Debug\Window1.baml
+C:\Users\maxbu\Source\Repos\BTDS-project\PSS V0.1\bin\x64\Debug\System.Threading.Tasks.Dataflow.dll
