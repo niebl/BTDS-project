@@ -5,46 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PSS_V0._1"
         mc:Ignorable="d"
-        Title="Initialization" Height="512" Width="789" Background="White">
-    <Grid Margin="180,29,20,79">
-        <Canvas Height="363" VerticalAlignment="Top" Margin="0,10,163,0">
-            <Canvas.Resources>
-                <!--Define an array containing the InkEditingMode Values.-->
-                <x:Array x:Key="MyEditingModes" Type="{x:Type InkCanvasEditingMode}">
-                    <x:Static Member="InkCanvasEditingMode.Ink"/>
-                    <x:Static Member="InkCanvasEditingMode.Select"/>
-                    <x:Static Member="InkCanvasEditingMode.EraseByStroke"/>
-                </x:Array>
-
-                <!--Define an array containing some DrawingAttributes.-->
-                <x:Array x:Key="MyDrawingAttributes" Type="{x:Type DrawingAttributes}">
-                    <DrawingAttributes Color="Black" FitToCurve="true" Width="3" Height="3"/>
-                    <DrawingAttributes Color="Blue" FitToCurve="true" Width="3" Height="3"/>
-                    <DrawingAttributes Color="Red" FitToCurve="true" Width="3" Height="3"/>
-                </x:Array>
-                <DataTemplate DataType="{x:Type DrawingAttributes}">
-                    <Border Width="80" Height="{Binding Path=Height}">
-                        <Border.Background >
-                            <SolidColorBrush Color="{Binding Path=Color}"/>
-                        </Border.Background>
-                    </Border>
-                </DataTemplate>
-            </Canvas.Resources>
-            <InkCanvas Name="ic" Background="LightGray" Height="424" Width="512" DefaultDrawingAttributes="{Binding ElementName=lbDrawingAttributes, Path=SelectedItem}" EditingMode ="{Binding ElementName=lbEditingMode, Path=SelectedItem}" Canvas.Left="-82">
-                <Viewbox Grid.Row="1" HorizontalAlignment="Center">
-                    <Image x:Name="FrameDisplayImage" Stretch="UniformToFill" />
-                </Viewbox>
-            </InkCanvas>
-            <ListBox Name="lbEditingMode" Canvas.Top="0" Canvas.Left="450" Height="70" Width="100" ItemsSource="{StaticResource MyEditingModes}" />
-            <ListBox Name="lbDrawingAttributes" Canvas.Top="87" Canvas.Left="450" Height="30" Width="100" ItemsSource="{StaticResource MyDrawingAttributes}" />
-
-        </Canvas>
-
-        <Button Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="-167,211,0,0" Height="20" RenderTransformOrigin="0.511,2.619" Click="Button_Submit"/>
-        <Button Content="Infrared" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="-167,143,0,0" Click="Button_Infrared" RenderTransformOrigin="0.59,-4.121"/>
-        <Button Content="Depth" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="-167,113,0,0" Click="Button_Depth" RenderTransformOrigin="0.28,-1.25"/>
-        <TextBox  Name="testbox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="99" Margin="453,140,0,0"/>
-        <Button Content="Save Line" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="453,181,0,0" Click="Button_Save"/>
-
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        
     </Grid>
 </Window>
