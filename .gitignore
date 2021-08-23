@@ -39,3 +39,5 @@ node_modules
 *.out
 *.app
 CTS/.env
+
+bin
