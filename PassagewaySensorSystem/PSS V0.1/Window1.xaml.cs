@@ -104,6 +104,7 @@ namespace PSS_V0._1
             return ellipse;
         }
 
+        /*
         private Line createLine(double[,] points)
         {
             Line myLine = new Line();
@@ -118,7 +119,31 @@ namespace PSS_V0._1
             myLine.StrokeThickness = 2;
             this.fieldOfView.Children.Add(myLine);
             return myLine;
+        } 
+        */
+
+        //this new function works a little different because the line that is given is already in the same coordinate system as the body coordinates
+        //old function commented out above for comparison
+        private Line createLine(double[,] points)
+        {
+            Line myLine = new Line();
+            myLine.Stroke = System.Windows.Media.Brushes.LightSteelBlue;
+            myLine.X1 = fieldOfView.ActualWidth / 2 + points[0, 0];
+            myLine.X2 = fieldOfView.ActualWidth / 2 + points[1, 0];
+            myLine.Y1 = fieldOfView.ActualHeight - points[0, 2];
+            myLine.Y2 = fieldOfView.ActualHeight - points[1, 2];
+
+            myLine.HorizontalAlignment = HorizontalAlignment.Left;
+            myLine.VerticalAlignment = VerticalAlignment.Center;
+            myLine.StrokeThickness = 2;
+
+            this.fieldOfView.Children.Clear();
+            this.fieldOfView.Children.Add(myLine);
+
+            return myLine;
         }
+
+
         public ImageSource ImageSource
         {
             get
@@ -152,7 +177,7 @@ namespace PSS_V0._1
                         ellipse.Height = 1;
                     }
 
-                    String testline = "pt1: " + Convert.ToString(linePoints[0, 2]) + "," + Convert.ToString(linePoints[0, 0]);
+                    String testline = "pt1: " + Convert.ToString(linePoints[0, 0]) + "," + Convert.ToString(linePoints[0, 2]);
 
                     logConsole(testline);
 
