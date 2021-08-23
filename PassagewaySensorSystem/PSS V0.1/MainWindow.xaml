@@ -17,10 +17,10 @@
             <TextBlock x:Name="windowConsole" TextWrapping="Wrap" />
         </ScrollViewer>
 
-        <Button Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Margin="362,501,0,0" Height="20" RenderTransformOrigin="0.511,2.619"/>
-        <Button Content="Save outside point" HorizontalAlignment="Left" VerticalAlignment="Top" Width="104" Margin="362,387,0,0" RenderTransformOrigin="0.59,-4.121" Click="Button_Outside"/>
+        <Button Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Margin="362,501,0,0" Height="20" RenderTransformOrigin="0.511,2.619" Click="Button_Submit"/>
+        <Button Content="Save outside point" HorizontalAlignment="Left" VerticalAlignment="Top" Width="104" Margin="362,392,0,0" RenderTransformOrigin="0.59,-4.121" Click="Button_Outside"/>
         <Button Content="Save inside point" HorizontalAlignment="Left" VerticalAlignment="Top" Width="104" Margin="362,417,0,0" RenderTransformOrigin="0.28,-1.25" Click="Button_Inside"/>
-        <Button Content="clear" HorizontalAlignment="Left" VerticalAlignment="Top" Width="63" Margin="362,442,0,0" RenderTransformOrigin="0.59,-4.121" Click="Button_Clear"/>
+        <Button Content="save" HorizontalAlignment="Left" VerticalAlignment="Top" Width="63" Margin="362,442,0,0" RenderTransformOrigin="0.59,-4.121" Click="Button_Clear"/>
 
     </Grid>
 </Window>

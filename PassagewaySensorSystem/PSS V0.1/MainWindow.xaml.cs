@@ -50,8 +50,6 @@ namespace PSS_V0._1
         private Coordinate thresholdP1 = new Coordinate(0, 0, false);
         private Coordinate thresholdP2 = new Coordinate(0, 0, false);
 
-        private double[,] threshold;
-
         //Data for each body
         List<System.Windows.Media.Brush> bodyBrushes = new List<System.Windows.Media.Brush>();
         public double dperPixZ = 0;
@@ -78,6 +76,8 @@ namespace PSS_V0._1
             this.bodyIndexColors();
             // open the sensor
             this.kinectSensor.Open();
+
+            
 
             InitializeComponent();
         }
@@ -383,23 +383,48 @@ namespace PSS_V0._1
 
         private void Button_Submit(object sender, RoutedEventArgs e)
         {
+            // first, proof that both threshold coordinates are tracked
+            if (thresholdP1.confirmed && thresholdP2.confirmed)
+            {
+                double[,] threshold = new double[2,3]{ 
+                    { thresholdP1.x, 0,thresholdP1.y },
+                    { thresholdP2.x, 0,thresholdP2.y }
+                }; 
 
+                //Window1 constructor takes threshold line as argument
+                Window1 window = new Window1(threshold);
+                window.Show();
+                this.Close();
+            } else
+            {
+                logConsole("Threshold line not yet defined");
+                if (!inside.confirmed)
+                {
+                    logConsole("missing: inside point");
+                }
+                if (!outside.confirmed)
+                {
+                    logConsole("missing: outside point");
+                }
+            }
         }
 
+        //creates the line in the preview
         private Line createLine(Coordinate point1, Coordinate point2)
         {
-            Line myLine = new Line();
-            myLine.Stroke = System.Windows.Media.Brushes.LightSteelBlue;
-            myLine.X1 = fieldOfView.ActualWidth / 2 + point1.x;
-            myLine.X2 = fieldOfView.ActualWidth / 2 + point2.x;
-            myLine.Y1 = fieldOfView.ActualHeight - point1.y;
-            myLine.Y2 = fieldOfView.ActualHeight - point2.y;
+            Line thresholdLine = new Line();
+            thresholdLine.Stroke = System.Windows.Media.Brushes.LightSteelBlue;
+            thresholdLine.X1 = fieldOfView.ActualWidth / 2 + point1.x;
+            thresholdLine.X2 = fieldOfView.ActualWidth / 2 + point2.x;
+            thresholdLine.Y1 = fieldOfView.ActualHeight - point1.y;
+            thresholdLine.Y2 = fieldOfView.ActualHeight - point2.y;
 
-            myLine.StrokeThickness = 2;
+            thresholdLine.StrokeThickness = 2;
 
-            this.fieldOfView.Children.Add(myLine);
+            this.fieldOfView.Children.Clear();
+            this.fieldOfView.Children.Add(thresholdLine);
 
-            return myLine;
+            return thresholdLine;
         }
 
 
