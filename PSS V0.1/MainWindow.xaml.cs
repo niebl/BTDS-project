@@ -170,9 +170,7 @@ namespace PSS_V0._1
                     if (wasClicked == false) { 
                         using (DepthFrame depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame())
                         {
-                            
-                            
-                            ShowDepthFrame(depthFrame);
+                            ShowDepthFrame(0,0,depthFrame);
                         }
                     }
                     else
@@ -196,6 +194,17 @@ namespace PSS_V0._1
                                     q[k, 0] = GetX(p);
                                     q[k, 1] = GetY(p);
                                     q[k, 2] = GetZ(p, depthFrame);
+
+
+                                    int posy=Convert.ToInt16(p.Y);
+                                    int posx = Convert.ToInt16(p.X);
+
+                                    Console.WriteLine($"x is {posx}");
+                                    Console.WriteLine($"y is { posy}");
+
+                                    ShowDepthFrame(posx,posy, depthFrame);
+
+                                
                                     k++;
                                 }
                             t[0, 0] = q[0, 0];
@@ -206,7 +215,7 @@ namespace PSS_V0._1
                             t[1, 2] = q[k - 1, 2];
                             savedStroke = t;
                             wasClicked = false;
-                            ShowDepthFrame(depthFrame);
+                            
                         }
                     }
                     break;
@@ -238,7 +247,7 @@ namespace PSS_V0._1
         }
 
 
-        private void ShowDepthFrame(DepthFrame depthFrame)
+        private void ShowDepthFrame(int x, int y, DepthFrame depthFrame)
         {
             if (depthFrame != null)
             {
@@ -252,7 +261,7 @@ namespace PSS_V0._1
                     {
                         // Note: In order to see the full range of depth (including the less reliable far field depth) we are setting maxDepth to the extreme potential depth threshold
                         ushort maxDepth = ushort.MaxValue;
-                        this.ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, depthBuffer.Size, depthFrame.DepthMinReliableDistance, maxDepth, depthFrameDescription);
+                        this.ProcessDepthFrameData(x, y,depthBuffer.UnderlyingBuffer, depthBuffer.Size, depthFrame.DepthMinReliableDistance, maxDepth, depthFrameDescription);
 
                     }
                 }
@@ -264,7 +273,7 @@ namespace PSS_V0._1
         /// create a displayable bitmap.
         /// This function requires the /unsafe compiler option as we make use of direct
         /// access to the native memory pointed to by the depthFrameData pointer.
-        private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, uint depthFrameDataSize, ushort minDepth, ushort maxDepth, FrameDescription depthFrameDescription)
+        private unsafe void ProcessDepthFrameData(int x, int y, IntPtr depthFrameData, uint depthFrameDataSize, ushort minDepth, ushort maxDepth, FrameDescription depthFrameDescription)
         {
             // depth frame data is a 16 bit value
             ushort* frameData = (ushort*)depthFrameData;
@@ -280,7 +289,16 @@ namespace PSS_V0._1
                 // To convert to a byte, we're mapping the depth value to the byte range.
                 // Values outside the reliable depth range are mapped to 0 (black).
                 this.depthPixels[i] = (byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
+
             }
+
+            if (x > 0) {
+                Console.WriteLine("Calculate Depth");
+                Console.WriteLine($"depth is {(frameData[x + (y * 512)])/1000.00 } raw: {(frameData[x + (y * 512)])}");
+            }
+
+
+
 
             this.bitmap.WritePixels(new Int32Rect(0, 0, this.bitmap.PixelWidth, this.bitmap.PixelHeight), this.depthPixels, this.bitmap.PixelWidth, 0);
 
@@ -415,9 +433,11 @@ namespace PSS_V0._1
             this.coordinateMapper.MapDepthFrameToCameraSpace(depthframeData, csp);
 
             //Depth(Z Position) of specified coordinate
-            double DepthPosition = csp[(512 * Convert.ToInt16(424-sp.Y)) + Convert.ToInt16(sp.X)].Z;
-           
-            return DepthPosition;
+            double DepthPosition = depthframeData[(512 * Convert.ToInt16(sp.Y)) + Convert.ToInt16(sp.X)];
+
+            Console.WriteLine($"get z is {DepthPosition}");
+
+            return DepthPosition/1000.00;
         }
         
 

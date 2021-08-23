@@ -99,6 +99,7 @@ namespace PSS_V0._1
             ellipse.Height = 15;
             this.fieldOfView.Children.Add(ellipse);
             Canvas.SetLeft(ellipse, coord_x);
+            Console.WriteLine("ellipse x: " + coord_x + " ellipse y: " + coord_y);
             Canvas.SetTop(ellipse, fieldOfView.ActualHeight - coord_y);
             return ellipse;
         }
@@ -108,10 +109,17 @@ namespace PSS_V0._1
             Line myLine = new Line();
             dperPixZ = (double)fieldOfView.ActualHeight / 5000;
             myLine.Stroke = System.Windows.Media.Brushes.LightSteelBlue;
-            myLine.X1 = points[0,0];
-            myLine.X2 = points[1,0];
-            myLine.Y1 = points[0,2] * dperPixZ * 1000;
-            myLine.Y2 = points[1,2] * dperPixZ * 1000;
+
+            myLine.X1 = points[0, 0];
+            myLine.X2 = points[1, 0];
+           
+            Console.WriteLine($"l1 x: {points[0, 0]} l1 y: {points[0, 2]}");
+
+            myLine.Y1 = fieldOfView.ActualHeight-(fieldOfView.ActualHeight*points[0,2])/4.5;
+            myLine.Y2 = fieldOfView.ActualHeight-(fieldOfView.ActualHeight*points[1,2])/4.5;
+
+            Console.WriteLine($"l1 corrected x: {myLine.X1} l1 y: {myLine.Y1}");
+            Console.WriteLine($"l2 corrected x: {myLine.X2} l2 y: {myLine.Y2}");
             myLine.HorizontalAlignment = HorizontalAlignment.Left;
             myLine.VerticalAlignment = VerticalAlignment.Center;
             myLine.StrokeThickness = 2;
