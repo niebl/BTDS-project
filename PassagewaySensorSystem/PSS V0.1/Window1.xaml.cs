@@ -49,6 +49,28 @@ namespace PSS_V0._1
         public double dperPixX = 0;
 
         public double[,] linePoints;
+
+        //class representing x,y coordinates in body space
+        public class Coordinate
+        {
+            public double x { get; set; }
+            public double y { get; set; }
+            public bool confirmed { get; set; }
+
+            public Coordinate(double x, double y, bool confirmed)
+            {
+                this.x = x;
+                this.y = y;
+                this.confirmed = confirmed;
+            }
+            public Coordinate(double x, double y)
+            {
+                this.x = x;
+                this.y = y;
+                this.confirmed = true;
+            }
+        }
+
         public Window1(double[,] line)
         {
             
@@ -316,6 +338,95 @@ namespace PSS_V0._1
         {
             windowConsole.Text = windowConsole.Text + Environment.NewLine + consoleoOut;
             ConsoleScroller.ScrollToBottom();
+        }
+
+
+        //checks for a crossing of a given line segment and the threshold
+        // based on https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/?ref=lbp
+        // return 0: no crossing
+        // return 1: in
+        // return 2: out
+
+        // threshold {x,y}, trajectorySegment {x,y}
+        private int thresholdCrossed(double[,] trajectory)
+        {
+            int returnValue = 0;
+
+            Coordinate p1 = new Coordinate(linePoints[0, 0], linePoints[0, 1]);
+            Coordinate q1 = new Coordinate(linePoints[1, 0], linePoints[1, 1]);
+            Coordinate p2 = new Coordinate(trajectory[0, 0], trajectory[0, 1]);
+            Coordinate q2 = new Coordinate(trajectory[1, 0], trajectory[1, 1]);
+
+            //check if the lines intersect
+            if(!doIntersect(p1, q1, p2, q2))
+            {
+                return 0;
+            }
+
+            //check direction of intersection
+            returnValue = orientation(p1, q1, p2);
+            //clockwise means entering, counterclockwise means leaving            
+
+            return returnValue;
+        }
+
+        // Given three colinear points p, q, r, the function checks if
+        // point q lies on line segment 'pr'
+        private Boolean onSegment(Coordinate p, Coordinate q, Coordinate r)
+        {
+            if (q.x <= Math.Max(p.x, r.x) && q.x >= Math.Min(p.x, r.x) &&
+                q.y <= Math.Max(p.y, r.y) && q.y >= Math.Min(p.y, r.y))
+                return true;
+
+            return false;
+        }
+
+        // To find orientation of ordered triplet (p, q, r).
+        // The function returns following values
+        // 0 --> p, q and r are colinear
+        // 1 --> Clockwise
+        // 2 --> Counterclockwise
+        private int orientation(Coordinate p, Coordinate q, Coordinate r)
+        {
+            // See https://www.geeksforgeeks.org/orientation-3-ordered-points/
+            // for details of below formula.
+            double val = (q.y - p.y) * (r.x - q.x) -
+                    (q.x - p.x) * (r.y - q.y);
+
+            if (val == 0) return 0; // colinear
+
+            return (val > 0) ? 1 : 2; // clock or counterclock wise
+        }
+
+        // The main function that returns true if line segment 'p1q1'
+        // and 'p2q2' intersect.
+        private Boolean doIntersect(Coordinate p1, Coordinate q1, Coordinate p2, Coordinate q2)
+        {
+            // Find the four orientations needed for general and
+            // special cases
+            int o1 = orientation(p1, q1, p2);
+            int o2 = orientation(p1, q1, q2);
+            int o3 = orientation(p2, q2, p1);
+            int o4 = orientation(p2, q2, q1);
+
+            // General case
+            if (o1 != o2 && o3 != o4)
+                return true;
+
+            // Special Cases
+            // p1, q1 and p2 are colinear and p2 lies on segment p1q1
+            if (o1 == 0 && onSegment(p1, p2, q1)) return true;
+
+            // p1, q1 and q2 are colinear and q2 lies on segment p1q1
+            if (o2 == 0 && onSegment(p1, q2, q1)) return true;
+
+            // p2, q2 and p1 are colinear and p1 lies on segment p2q2
+            if (o3 == 0 && onSegment(p2, p1, q2)) return true;
+
+            // p2, q2 and q1 are colinear and q1 lies on segment p2q2
+            if (o4 == 0 && onSegment(p2, q1, q2)) return true;
+
+            return false; // Doesn't fall in any of the above cases
         }
 
     }
