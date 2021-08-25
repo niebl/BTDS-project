@@ -41,14 +41,26 @@ namespace PSS_V0._1
         /// Array for the bodies
         private Body[] bodies = null;
         ulong[] bodies_ids = { 0, 0, 0, 0, 0, 0 };
-
+        private TrackedBody[] trackedBodies =
+        {
+            new TrackedBody(0,0,false),
+            new TrackedBody(0,0,false),
+            new TrackedBody(0,0,false),
+            new TrackedBody(0,0,false),
+            new TrackedBody(0,0,false),
+            new TrackedBody(0,0,false),
+        };
         
         //Data for each body
         List<System.Windows.Media.Brush> bodyBrushes = new List<System.Windows.Media.Brush>();
         public double dperPixZ = 0;
         public double dperPixX = 0;
 
-        public double[,] linePoints;
+        public static double[,] linePoints;
+
+        //Http Client Object which will be responsible for sending all the requests
+        //https://stackoverflow.com/questions/4015324/how-to-make-an-http-post-web-request
+        private static readonly HttpClient client = new HttpClient();
 
         //class representing x,y coordinates in body space
         public class Coordinate
@@ -70,6 +82,8 @@ namespace PSS_V0._1
                 this.confirmed = true;
             }
         }
+
+
 
         public Window1(double[,] line)
         {
@@ -95,7 +109,7 @@ namespace PSS_V0._1
             // open the sensor
             this.kinectSensor.Open();
             //Points from monitoring Line
-            this.linePoints = line;
+            linePoints = line;
 
             InitializeComponent();
         }
@@ -125,24 +139,6 @@ namespace PSS_V0._1
             Canvas.SetTop(ellipse, fieldOfView.ActualHeight - coord_y);
             return ellipse;
         }
-
-        /*
-        private Line createLine(double[,] points)
-        {
-            Line myLine = new Line();
-            dperPixZ = (double)fieldOfView.ActualHeight / 5000;
-            myLine.Stroke = System.Windows.Media.Brushes.LightSteelBlue;
-            myLine.X1 = points[0,0];
-            myLine.X2 = points[1,0];
-            myLine.Y1 = points[0,2] * dperPixZ * 1000;
-            myLine.Y2 = points[1,2] * dperPixZ * 1000;
-            myLine.HorizontalAlignment = HorizontalAlignment.Left;
-            myLine.VerticalAlignment = VerticalAlignment.Center;
-            myLine.StrokeThickness = 2;
-            this.fieldOfView.Children.Add(myLine);
-            return myLine;
-        } 
-        */
 
         //this new function works a little different because the line that is given is already in the same coordinate system as the body coordinates
         //old function commented out above for comparison
@@ -207,13 +203,38 @@ namespace PSS_V0._1
                     // Create bodies in the scene
                     createLine(linePoints);
                     DrawTracked_Bodies(tracked_bodies);
+                    bodies_To_Inhabitants(tracked_bodies);
 
 
                 }
             }
         }
-        //Needs two set points as start and endpoint to draw a line where the monitoring takes place
         
+        private void bodies_To_Inhabitants(List<Body> tracked_bodies)
+        {
+            for(int inhabIndex = 0; inhabIndex < 6; inhabIndex++)
+            {
+                trackedBodies[inhabIndex].tracked = bodies_ids[inhabIndex] != 0 ;
+
+                if (trackedBodies[inhabIndex].tracked)
+                {
+                    Body tracked_body = tracked_bodies.Find(x => x.TrackingId == bodies_ids[inhabIndex]);
+                    var current_body = tracked_body.Joints[JointType.SpineMid];
+
+                    trackedBodies[inhabIndex].update(
+                        Math.Round(current_body.Position.Z, 2),
+                        Math.Round(current_body.Position.X, 2) * (-1),
+                        true, //this question is answered in if-clause a few lines up
+                        bodies_ids[inhabIndex]
+                    );
+                }
+                else
+                {
+                    continue; //probably not necessary in retrospect, but I think the compiler already takes care of it.
+                }
+            }
+        }
+
        
         private void DrawTracked_Bodies(List<Body> tracked_bodies)
         {
@@ -247,8 +268,6 @@ namespace PSS_V0._1
                 double bodyZ = tracked_bodies[new_id].Joints[JointType.SpineMid].Position.Z * dperPixZ * 1000;
 
                 ulong current_id = tracked_bodies[new_id].TrackingId;
-
-                logConsole("BODY: x:" + bodyX + "   z:" + bodyZ);
                     
                 // true: if body was previosly tracked
                 // false: if its a new body just entered the scene
@@ -261,7 +280,7 @@ namespace PSS_V0._1
                     {
                         is_tracked = true;
                         createBody(fieldOfView.ActualWidth / 2 + bodyX, bodyZ, bodyBrushes[exist_id]);
-                        coord_body.Content = coordinatesFieldofView(tracked_bodies[exist_id]);
+                        //coord_body.Content = coordinatesFieldofView(tracked_bodies[exist_id]);
                         break;
                     }
                 }
@@ -276,7 +295,7 @@ namespace PSS_V0._1
                             bodies_ids[fill_id] = current_id;
 
                             createBody(fieldOfView.ActualWidth / 2 + bodyX, bodyZ, bodyBrushes[fill_id]);
-                            coord_body.Content = coordinatesFieldofView(tracked_bodies[new_id]);
+                            //coord_body.Content = coordinatesFieldofView(tracked_bodies[new_id]);
 
                             break;
                         }
@@ -334,21 +353,19 @@ namespace PSS_V0._1
         }
 
         //logs the string to the window console
-        private void logConsole(String consoleoOut)
+        public void logConsole(String consoleoOut)
         {
             windowConsole.Text = windowConsole.Text + Environment.NewLine + consoleoOut;
             ConsoleScroller.ScrollToBottom();
         }
 
-
         //checks for a crossing of a given line segment and the threshold
         // based on https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/?ref=lbp
         // return 0: no crossing
         // return 1: in
-        // return 2: out
-
+        // return -1: out
         // threshold {x,y}, trajectorySegment {x,y}
-        private int thresholdCrossed(double[,] trajectory)
+        private static int thresholdCrossed(double[,] trajectory)
         {
             int returnValue = 0;
 
@@ -365,14 +382,22 @@ namespace PSS_V0._1
 
             //check direction of intersection
             returnValue = orientation(p1, q1, p2);
-            //clockwise means entering, counterclockwise means leaving            
 
-            return returnValue;
+            //clockwise means entering, counterclockwise means leaving  
+            switch (returnValue)
+            {
+                case 0: return 0;
+                case 1: return 1;
+                case 2: return -1;
+
+            }
+          
+            return 0;
         }
 
         // Given three colinear points p, q, r, the function checks if
         // point q lies on line segment 'pr'
-        private Boolean onSegment(Coordinate p, Coordinate q, Coordinate r)
+        private static Boolean onSegment(Coordinate p, Coordinate q, Coordinate r)
         {
             if (q.x <= Math.Max(p.x, r.x) && q.x >= Math.Min(p.x, r.x) &&
                 q.y <= Math.Max(p.y, r.y) && q.y >= Math.Min(p.y, r.y))
@@ -386,7 +411,7 @@ namespace PSS_V0._1
         // 0 --> p, q and r are colinear
         // 1 --> Clockwise
         // 2 --> Counterclockwise
-        private int orientation(Coordinate p, Coordinate q, Coordinate r)
+        private static int orientation(Coordinate p, Coordinate q, Coordinate r)
         {
             // See https://www.geeksforgeeks.org/orientation-3-ordered-points/
             // for details of below formula.
@@ -400,7 +425,7 @@ namespace PSS_V0._1
 
         // The main function that returns true if line segment 'p1q1'
         // and 'p2q2' intersect.
-        private Boolean doIntersect(Coordinate p1, Coordinate q1, Coordinate p2, Coordinate q2)
+        private static Boolean doIntersect(Coordinate p1, Coordinate q1, Coordinate p2, Coordinate q2)
         {
             // Find the four orientations needed for general and
             // special cases
@@ -427,6 +452,74 @@ namespace PSS_V0._1
             if (o4 == 0 && onSegment(p2, q1, q2)) return true;
 
             return false; // Doesn't fall in any of the above cases
+        }
+
+        //todo, save body id also, to differentiate between old and new bodies
+        public class TrackedBody
+        {
+            public double x { get; set; }
+            public double y { get; set; }
+            private double prevX;
+            private double prevY;
+            public ulong trackingID { get; set; }
+
+            public bool tracked { get; set; }
+
+            private int updatesSinceLastEvent;
+            private int passageStatus;
+
+            public TrackedBody(double x, double y, bool tracked)
+            {
+                this.x = x;
+                this.y = y;
+                this.prevX = x;
+                this.prevY = y;
+
+                this.trackingID = 0;
+
+                this.tracked = tracked;
+                this.updatesSinceLastEvent = 0;
+            }
+
+            public void update(double x, double y, bool tracked, ulong trackingID)
+            {
+                this.prevX = this.x;
+                this.prevY = this.y;
+                this.x = x;
+                this.y = y;
+
+                this.tracked = tracked;
+                this.updatesSinceLastEvent += 1;
+
+                double[,] traj = new double[,] {
+                    { this.prevX, this.prevY }, 
+                    { this.x, this.y } 
+                };
+
+                if(trackingID == this.trackingID)
+                {
+                    this.passageStatus += thresholdCrossed(traj);
+                }
+
+                if (this.updatesSinceLastEvent > 10)
+                {
+                    this.postUpdate();
+                    this.passageStatus = 0;
+                    this.updatesSinceLastEvent = 0;
+                }
+
+                this.trackingID = trackingID;
+            }
+
+            private void postUpdate()
+            {
+                if(this.passageStatus != 0)
+                {
+                    Console.WriteLine($"reporting passage {this.passageStatus}");
+                }
+            }
+
+
         }
 
     }
