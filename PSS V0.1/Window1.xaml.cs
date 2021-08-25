@@ -110,9 +110,9 @@ namespace PSS_V0._1
             dperPixZ = (double)fieldOfView.ActualHeight / 5000;
             myLine.Stroke = System.Windows.Media.Brushes.LightSteelBlue;
 
-            myLine.X1 = points[0, 0];
-            myLine.X2 = points[1, 0];
-           
+            myLine.X1 = fieldOfView.ActualWidth / 2 + points[0, 0];
+            myLine.X2 = fieldOfView.ActualWidth / 2 + points[1, 0];
+
             Console.WriteLine($"l1 x: {points[0, 0]} l1 y: {points[0, 2]}");
 
             myLine.Y1 = fieldOfView.ActualHeight-(fieldOfView.ActualHeight*points[0,2])/4.5;

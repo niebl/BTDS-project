@@ -191,7 +191,7 @@ namespace PSS_V0._1
                             int k = 0;
                             foreach (StylusPoint p in strokes[0].StylusPoints)
                                 {
-                                    q[k, 0] = GetX(p);
+                                    q[k, 0] = GetX(p, depthFrame);
                                     q[k, 1] = GetY(p);
                                     q[k, 2] = GetZ(p, depthFrame);
 
@@ -414,9 +414,18 @@ namespace PSS_V0._1
         }
 
         
-        private double GetX(StylusPoint sp)
+        private double GetX(StylusPoint sp, DepthFrame depthFrame)
         {
-            return sp.X;
+            int depthWidth = depthFrame.FrameDescription.Width;
+            int depthHeight = depthFrame.FrameDescription.Height;
+            ushort[] depthframeData = new ushort[depthWidth * depthHeight];
+            depthFrame.CopyFrameDataToArray(depthframeData);
+
+            CameraSpacePoint[] csp = new CameraSpacePoint[512 * 424];
+            this.coordinateMapper.MapDepthFrameToCameraSpace(depthframeData, csp);
+
+            CameraSpacePoint XPosition = csp[(512 * Convert.ToInt16(sp.Y)) + Convert.ToInt16(sp.X)];
+            return XPosition.X * -100;
         }
         private double GetY(StylusPoint sp)
         {
@@ -433,11 +442,11 @@ namespace PSS_V0._1
             this.coordinateMapper.MapDepthFrameToCameraSpace(depthframeData, csp);
 
             //Depth(Z Position) of specified coordinate
-            double DepthPosition = depthframeData[(512 * Convert.ToInt16(sp.Y)) + Convert.ToInt16(sp.X)];
+            CameraSpacePoint DepthPosition = csp[(512 * Convert.ToInt16(sp.Y)) + Convert.ToInt16(sp.X)];
 
             Console.WriteLine($"get z is {DepthPosition}");
 
-            return DepthPosition/1000.00;
+            return DepthPosition.Z ;
         }
         
 
