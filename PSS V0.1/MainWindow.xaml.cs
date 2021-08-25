@@ -1,46 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
 using System.Windows.Ink;
-using System.Drawing;
-//Project Libraries
 using Microsoft.Kinect;
 using System.Windows.Forms;
 
 namespace PSS_V0._1
 {
-    public enum DisplayFrameType
-    {
-        Infrared,
-        Color,
-        Depth
-    }
-
-
     public partial class MainWindow : Window
     {
         // Setup interface option selection
-        private const DisplayFrameType DEFAULT_DISPLAYFRAMETYPE = DisplayFrameType.Depth;
-
         /// Kinect Sensor
         private KinectSensor kinectSensor = null;
-
         // Object to write the image to show on the interface
         private WriteableBitmap bitmap = null;
         private FrameDescription currentFrameDescription;
-        private DisplayFrameType currentDisplayFrameType;
         // Reader to receive the information from the camera
         private MultiSourceFrameReader multiSourceFrameReader = null;
 
@@ -85,9 +63,7 @@ namespace PSS_V0._1
             // Set up display frame types:
             // get FrameDescription
             // create the bitmap to display
-            SetupCurrentDisplay(DEFAULT_DISPLAYFRAMETYPE);
-
-
+            SetupCurrentDisplay();
 
             // get the depth (display) extents
             FrameDescription colorFrameDescription = this.kinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
@@ -125,127 +101,68 @@ namespace PSS_V0._1
             }
         }
 
-        private void SetupCurrentDisplay(DisplayFrameType newDisplayFrameType)
+        private void SetupCurrentDisplay()
         {
-            currentDisplayFrameType = newDisplayFrameType;
-            Console.WriteLine(currentDisplayFrameType);
-            switch (currentDisplayFrameType)
-
-            {
-                case DisplayFrameType.Infrared:
-                    FrameDescription infraredFrameDescription = this.kinectSensor.InfraredFrameSource.FrameDescription;
-                    this.CurrentFrameDescription = infraredFrameDescription;
-                    // allocate space to put the pixels being  received and converted
-                    this.bitmap = new WriteableBitmap(infraredFrameDescription.Width, infraredFrameDescription.Height, 96.0, 96.0, PixelFormats.Gray32Float, null);
-                    break;
-
-                case DisplayFrameType.Depth:
-                    FrameDescription depthFrameDescription = this.kinectSensor.DepthFrameSource.FrameDescription;
-                    this.CurrentFrameDescription = depthFrameDescription;
-                    // allocate space to put the pixels being received and converted
-                    this.depthPixels = new byte[depthFrameDescription.Width * depthFrameDescription.Height];
-                    // create the bitmap to display
-                    this.bitmap = new WriteableBitmap(depthFrameDescription.Width, depthFrameDescription.Height, 96.0, 96.0, PixelFormats.Gray8, null);
-                    break;
-
-                default:
-                    break;
-            }
+            FrameDescription depthFrameDescription = this.kinectSensor.DepthFrameSource.FrameDescription;
+            this.CurrentFrameDescription = depthFrameDescription;
+            // allocate space to put the pixels being received and converted
+            this.depthPixels = new byte[depthFrameDescription.Width * depthFrameDescription.Height];
+            // create the bitmap to display
+            this.bitmap = new WriteableBitmap(depthFrameDescription.Width, depthFrameDescription.Height, 96.0, 96.0, PixelFormats.Gray8, null);
+ 
         }
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
             MultiSourceFrame multiSourceFrame = e.FrameReference.AcquireFrame();
 
-            switch (currentDisplayFrameType)
-            {
-                case DisplayFrameType.Infrared:
-                    using (InfraredFrame infraredFrame = multiSourceFrame.InfraredFrameReference.AcquireFrame())
+            if (wasClicked == false) 
+            { 
+                using (DepthFrame depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame())
                     {
-                        ShowInfraredFrame(infraredFrame);
+                        ShowDepthFrame(0,0,depthFrame);
                     }
-                    break;
-
-                case DisplayFrameType.Depth:
-                    if (wasClicked == false) { 
-                        using (DepthFrame depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame())
-                        {
-                            ShowDepthFrame(0,0,depthFrame);
-                        }
-                    }
-                    else
-                    {
-                        using (DepthFrame depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame())
-                        {
-                            strokes = ic.Strokes.Clone();
-                            
-                            // i counts the stylusPoints in the saved Stroke
-                            int i = 0;
-                            foreach (StylusPoint p in strokes[0].StylusPoints)
-                                {
-                                    i++;
-                                }
-
-                            double[,] q = new double[i, 3];
-                            double[,] t = new double[2, 3];
-                            int k = 0;
-                            foreach (StylusPoint p in strokes[0].StylusPoints)
-                                {
-                                    q[k, 0] = GetX(p, depthFrame);
-                                    q[k, 1] = GetY(p);
-                                    q[k, 2] = GetZ(p, depthFrame);
-
-
-                                    int posy=Convert.ToInt16(p.Y);
-                                    int posx = Convert.ToInt16(p.X);
-
-                                    Console.WriteLine($"x is {posx}");
-                                    Console.WriteLine($"y is { posy}");
-
-                                    ShowDepthFrame(posx,posy, depthFrame);
-
-                                
-                                    k++;
-                                }
-                            t[0, 0] = q[0, 0];
-                            t[0, 1] = q[0, 1];
-                            t[0, 2] = q[0, 2];
-                            t[1, 0] = q[k - 1, 0];
-                            t[1, 1] = q[k - 1, 1];
-                            t[1, 2] = q[k - 1, 2];
-                            savedStroke = t;
-                            wasClicked = false;
-                            
-                        }
-                    }
-                    break;
-                default:
-                    break;
             }
-        }
-        
-        
-        private void ShowInfraredFrame(InfraredFrame infraredFrame)
-        {
-
-            // InfraredFrame is IDisposable
-
-            if (infraredFrame != null)
+            else
             {
-                FrameDescription infraredFrameDescription = infraredFrame.FrameDescription;
-                /// We are using WPF (Windows Presentation Foundation)
-                using (KinectBuffer infraredBuffer = infraredFrame.LockImageBuffer())
+                using (DepthFrame depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame())
                 {
-                    // verify data and write the new infrared frame data to the display bitmap
-                    if (((infraredFrameDescription.Width * infraredFrameDescription.Height) == (infraredBuffer.Size / infraredFrameDescription.BytesPerPixel)) &&
-                        (infraredFrameDescription.Width == this.bitmap.PixelWidth) && (infraredFrameDescription.Height == this.bitmap.PixelHeight))
+                    strokes = ic.Strokes.Clone();
+                            
+                    // i counts the stylusPoints in the saved Stroke
+                    int i = 0;
+                    foreach (StylusPoint p in strokes[0].StylusPoints)
                     {
-                        this.ProcessInfraredFrameData(infraredBuffer.UnderlyingBuffer, infraredBuffer.Size, infraredFrameDescription);
+                        i++;
                     }
+
+                    double[,] q = new double[i, 3];
+                    double[,] t = new double[2, 3];
+                    int k = 0;
+
+                    foreach (StylusPoint p in strokes[0].StylusPoints)
+                    {
+                        q[k, 0] = GetX(p, depthFrame);
+                        q[k, 1] = GetY(p);
+                        q[k, 2] = GetZ(p, depthFrame);
+
+                        int posy = Convert.ToInt16(p.Y);
+                        int posx = Convert.ToInt16(p.X);
+
+                        ShowDepthFrame(posx,posy, depthFrame);
+                        k++;
+                    }
+                    t[0, 0] = q[0, 0];
+                    t[0, 1] = q[0, 1];
+                    t[0, 2] = q[0, 2];
+                    t[1, 0] = q[k - 1, 0];
+                    t[1, 1] = q[k - 1, 1];
+                    t[1, 2] = q[k - 1, 2];
+                    savedStroke = t;
+                    wasClicked = false;               
                 }
             }
-        }
-
+        } 
 
         private void ShowDepthFrame(int x, int y, DepthFrame depthFrame)
         {
@@ -267,8 +184,6 @@ namespace PSS_V0._1
                 }
             }
         }
-
-
         /// Directly accesses the underlying image buffer of the DepthFrame to 
         /// create a displayable bitmap.
         /// This function requires the /unsafe compiler option as we make use of direct
@@ -298,8 +213,6 @@ namespace PSS_V0._1
             }
 
 
-
-
             this.bitmap.WritePixels(new Int32Rect(0, 0, this.bitmap.PixelWidth, this.bitmap.PixelHeight), this.depthPixels, this.bitmap.PixelWidth, 0);
 
             this.bitmap.Unlock();
@@ -309,32 +222,7 @@ namespace PSS_V0._1
         /// Directly accesses the underlying image buffer of the InfraredFrame to create a displayable bitmap.
         /// This function requires the /unsafe compiler option as we make use of direct access to the native memory pointed to by the infraredFrameData pointer.
         /// Activate "unsafe" in the solution properties > on the left >Build > Check Allow unsafe code
-        private unsafe void ProcessInfraredFrameData(IntPtr infraredFrameData, uint infraredFrameDataSize, FrameDescription infraredFrameDescription)
-        {
-            // infrared frame data is a 16 bit value
-            ushort* frameData = (ushort*)infraredFrameData;
-
-            // lock the target bitmap
-            this.bitmap.Lock();
-
-            // get the pointer to the bitmap's back buffer
-            float* backBuffer = (float*)this.bitmap.BackBuffer;
-
-            // process the infrared data
-            for (int i = 0; i < (int)(infraredFrameDataSize / infraredFrameDescription.BytesPerPixel); ++i)
-            {
-                // since we are displaying the image as a normalized grey scale image, we need to convert from
-                // the ushort data (as provided by the InfraredFrame) to a value from [InfraredOutputValueMinimum, InfraredOutputValueMaximum]
-                backBuffer[i] = Math.Min(InfraredOutputValueMaximum, (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum);
-            }
-
-            // mark the entire bitmap as needing to be drawn
-            this.bitmap.AddDirtyRect(new Int32Rect(0, 0, this.bitmap.PixelWidth, this.bitmap.PixelHeight));
-
-            // unlock the bitmap
-            this.bitmap.Unlock();
-            FrameDisplayImage.Source = this.bitmap;
-        }
+       
 
         private void Button_Submit(object sender, RoutedEventArgs e)
         {
@@ -374,15 +262,6 @@ namespace PSS_V0._1
                 var result2 = System.Windows.Forms.MessageBox.Show(message, caption, button1);
             }
         }
-        private void Button_Infrared(object sender, RoutedEventArgs e)
-        {
-            SetupCurrentDisplay(DisplayFrameType.Infrared);
-        }
-
-        private void Button_Depth(object sender, RoutedEventArgs e)
-        {
-            SetupCurrentDisplay(DisplayFrameType.Depth);
-        }
         private void Button_Save(object sender, RoutedEventArgs e)
         {
             strokes = ic.Strokes.Clone();
@@ -403,17 +282,14 @@ namespace PSS_V0._1
                 MessageBoxButtons button2 = MessageBoxButtons.OK;
                 //Display the MessageBox
                 var result1 = System.Windows.Forms.MessageBox.Show(message, caption, button2);
-
             }
             else
-            {
-                
+            {  
                 wasClicked = true;
                 strokeSaved = true;
             }
         }
 
-        
         private double GetX(StylusPoint sp, DepthFrame depthFrame)
         {
             int depthWidth = depthFrame.FrameDescription.Width;

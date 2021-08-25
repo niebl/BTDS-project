@@ -30,7 +30,7 @@
                     </Border>
                 </DataTemplate>
             </Canvas.Resources>
-            <InkCanvas Name="ic" Background="LightGray" Height="424" Width="512" DefaultDrawingAttributes="{Binding ElementName=lbDrawingAttributes, Path=SelectedItem}" EditingMode ="{Binding ElementName=lbEditingMode, Path=SelectedItem}" Canvas.Left="-82">
+            <InkCanvas Name="ic" Background="LightGray" Height="390" Width="512" DefaultDrawingAttributes="{Binding ElementName=lbDrawingAttributes, Path=SelectedItem}" EditingMode ="{Binding ElementName=lbEditingMode, Path=SelectedItem}" Canvas.Left="-82">
                 <Viewbox Grid.Row="1" HorizontalAlignment="Center">
                     <Image x:Name="FrameDisplayImage" Stretch="UniformToFill" />
                 </Viewbox>
@@ -40,10 +40,8 @@
 
         </Canvas>
 
-        <Button Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="-167,211,0,0" Height="20" RenderTransformOrigin="0.511,2.619" Click="Button_Submit"/>
-        <Button Content="Infrared" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="-167,143,0,0" Click="Button_Infrared" RenderTransformOrigin="0.59,-4.121"/>
-        <Button Content="Depth" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="-167,113,0,0" Click="Button_Depth" RenderTransformOrigin="0.28,-1.25"/>
-        <TextBox  Name="testbox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="99" Margin="453,140,0,0"/>
+        <Button Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="453,226,0,0" Height="20" RenderTransformOrigin="0.511,2.619" Click="Button_Submit"/>
+        <TextBox  Name="URLbox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="340" Margin="-82,408,0,-56.6"/>
         <Button Content="Save Line" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="453,181,0,0" Click="Button_Save"/>
 
     </Grid>
