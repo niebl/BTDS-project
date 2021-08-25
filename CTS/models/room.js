@@ -29,7 +29,7 @@ const RoomSchema = new mongoose.Schema({
 
     lastEvent:{
         type: String,
-        default: Date.now()
+        default: Date.now()/1000
     },
 
     //The part that governs the RSS; reference to the sensor. 
