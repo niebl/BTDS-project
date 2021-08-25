@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 
 using System.Windows.Shapes;
 using System.Drawing;
+using System.Net.Http;
 
 //Kinect Libraries
 using Microsoft.Kinect;
@@ -24,6 +25,8 @@ namespace PSS_V0._1
     /// </summary>
     public partial class Window1 : Window
     {
+        public static String postURL;
+
         /// Kinect Sensor object
         private KinectSensor kinectSensor = null;
 
@@ -85,9 +88,9 @@ namespace PSS_V0._1
 
 
 
-        public Window1(double[,] line)
+        public Window1(double[,] line, String newPostURL)
         {
-            
+            postURL = newPostURL;
 
             // Initialize the sensor
             this.kinectSensor = KinectSensor.GetDefault();
@@ -515,8 +518,38 @@ namespace PSS_V0._1
             {
                 if(this.passageStatus != 0)
                 {
-                    Console.WriteLine($"reporting passage {this.passageStatus}");
+
+                    String eventText = "";
+                    String timeStamp;
+
+                    if (this.passageStatus == 1)
+                    {
+                        eventText = "in";
+                    } else if(this.passageStatus == -1)
+                    {
+                        eventText = "out";
+                    }
+
+                    DateTime currentTime = DateTime.Now;
+                    long currentUnix = ((DateTimeOffset)currentTime).ToUnixTimeSeconds();
+
+                    Console.WriteLine($"reporting passage {this.passageStatus}, sending to {postURL}, timestamp {currentUnix.ToString()}");
+
+                    var postValues = new Dictionary<string, string>
+                        {
+                            {"timestamp", currentUnix.ToString() },
+                            {"event", eventText }
+                        };
+
+                    var postContent = new FormUrlEncodedContent(postValues);
+                    sendPost(postURL, postContent);
                 }
+            }
+
+            private async void sendPost(String URL, FormUrlEncodedContent content)
+            {
+                var response = await client.PostAsync(URL, content);
+                //logConsole(await response.Content.ReadAsStringAsync());
             }
 
 

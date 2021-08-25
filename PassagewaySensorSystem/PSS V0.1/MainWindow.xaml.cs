@@ -389,10 +389,12 @@ namespace PSS_V0._1
                 double[,] threshold = new double[2,3]{ 
                     { thresholdP1.x, 0,thresholdP1.y },
                     { thresholdP2.x, 0,thresholdP2.y }
-                }; 
+                };
+
+                String postURL = postURLField.Text;
 
                 //Window1 constructor takes threshold line as argument
-                Window1 window = new Window1(threshold);
+                Window1 window = new Window1(threshold, postURL);
                 window.Show();
                 this.Close();
             } else
