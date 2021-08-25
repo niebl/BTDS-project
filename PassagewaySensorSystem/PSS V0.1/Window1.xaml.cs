@@ -224,9 +224,12 @@ namespace PSS_V0._1
                     Body tracked_body = tracked_bodies.Find(x => x.TrackingId == bodies_ids[inhabIndex]);
                     var current_body = tracked_body.Joints[JointType.SpineMid];
 
+                    dperPixZ = (double)fieldOfView.ActualHeight / 5000;
+
                     trackedBodies[inhabIndex].update(
-                        Math.Round(current_body.Position.Z, 2),
-                        Math.Round(current_body.Position.X, 2) * (-1),
+                        Math.Round(current_body.Position.X, 2) * dperPixZ * 1000 * (-1),
+                        Math.Round(current_body.Position.Z, 2) * dperPixZ * 1000,
+                        
                         true, //this question is answered in if-clause a few lines up
                         bodies_ids[inhabIndex]
                     );
@@ -372,13 +375,13 @@ namespace PSS_V0._1
         {
             int returnValue = 0;
 
-            Coordinate p1 = new Coordinate(linePoints[0, 0], linePoints[0, 1]);
-            Coordinate q1 = new Coordinate(linePoints[1, 0], linePoints[1, 1]);
+            Coordinate p1 = new Coordinate(linePoints[0, 0], linePoints[0, 2]);
+            Coordinate q1 = new Coordinate(linePoints[1, 0], linePoints[1, 2]);
             Coordinate p2 = new Coordinate(trajectory[0, 0], trajectory[0, 1]);
             Coordinate q2 = new Coordinate(trajectory[1, 0], trajectory[1, 1]);
 
             //check if the lines intersect
-            if(!doIntersect(p1, q1, p2, q2))
+            if (!doIntersect(p1, q1, p2, q2))
             {
                 return 0;
             }
@@ -390,8 +393,8 @@ namespace PSS_V0._1
             switch (returnValue)
             {
                 case 0: return 0;
-                case 1: return 1;
-                case 2: return -1;
+                case 1: return -1;
+                case 2: return 1;
 
             }
           
@@ -507,8 +510,7 @@ namespace PSS_V0._1
                 if (this.updatesSinceLastEvent > 10)
                 {
                     this.postUpdate();
-                    this.passageStatus = 0;
-                    this.updatesSinceLastEvent = 0;
+
                 }
 
                 this.trackingID = trackingID;
@@ -518,9 +520,7 @@ namespace PSS_V0._1
             {
                 if(this.passageStatus != 0)
                 {
-
                     String eventText = "";
-                    String timeStamp;
 
                     if (this.passageStatus == 1)
                     {
@@ -533,7 +533,8 @@ namespace PSS_V0._1
                     DateTime currentTime = DateTime.Now;
                     long currentUnix = ((DateTimeOffset)currentTime).ToUnixTimeSeconds();
 
-                    Console.WriteLine($"reporting passage {this.passageStatus}, sending to {postURL}, timestamp {currentUnix.ToString()}");
+                    Console.WriteLine($"reporting passage {this.passageStatus}, sending to {postURL}, timestamp {currentUnix}");
+                    
 
                     var postValues = new Dictionary<string, string>
                         {
@@ -543,6 +544,9 @@ namespace PSS_V0._1
 
                     var postContent = new FormUrlEncodedContent(postValues);
                     sendPost(postURL, postContent);
+
+                    this.passageStatus = 0;
+                    this.updatesSinceLastEvent = 0;
                 }
             }
 

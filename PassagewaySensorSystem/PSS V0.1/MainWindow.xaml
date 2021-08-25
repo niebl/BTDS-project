@@ -20,7 +20,7 @@
         <Button Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Margin="564,501,0,0" Height="20" RenderTransformOrigin="0.511,2.619" Click="Button_Submit"/>
         <Button Content="Save outside point" HorizontalAlignment="Left" VerticalAlignment="Top" Width="104" Margin="362,417,0,0" RenderTransformOrigin="0.59,-4.121" Click="Button_Outside"/>
         <Button Content="Save inside point" HorizontalAlignment="Left" VerticalAlignment="Top" Width="104" Margin="362,442,0,0" RenderTransformOrigin="0.28,-1.25" Click="Button_Inside"/>
-        <TextBox x:Name="postURLField" HorizontalAlignment="Left" Height="20" Margin="28,501,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="507"/>
+        <TextBox x:Name="postURLField" HorizontalAlignment="Left" Height="20" Margin="28,501,0,0" TextWrapping="Wrap" Text="http://192.168.178.42:3000/sensor/pss/P1" VerticalAlignment="Top" Width="507"/>
 
     </Grid>
 </Window>
