@@ -13,6 +13,13 @@
                 <TextBox Name ="tst2" Height="23" TextWrapping="Wrap" Text="TextBox2" Width="120" Canvas.Left="-226" Canvas.Top="122"/>
                 <TextBox Name ="tst3" Height="23" TextWrapping="Wrap" Text="TextBox3" Width="120" Canvas.Left="-226" Canvas.Top="150"/>
                 <TextBox Name ="tst4" Height="23" TextWrapping="Wrap" Text="TextBox4" Width="120" Canvas.Left="-226" Canvas.Top="186"/>
+
+                <Border BorderBrush="Purple" BorderThickness="1" HorizontalAlignment="Right" Height="512" VerticalAlignment="Top" Width="331" Canvas.Top="-33" Canvas.Left="446" RenderTransformOrigin="0.512,-0.132">
+                    <ScrollViewer x:Name="ConsoleScroller"  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                        <TextBlock x:Name="windowConsole" TextWrapping="Wrap" />
+                    </ScrollViewer>
+                </Border>
+
             </Canvas>
         </Border>
         <Label  x:Name="coord_body" Content="Body Coordinates: " HorizontalAlignment="Left" Margin="50,10,0,0" VerticalAlignment="Top" Width="270"/>

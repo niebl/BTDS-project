@@ -249,7 +249,7 @@ namespace PSS_V0._1
             }
             else if(strokeSaved ==true) 
             { 
-            Window1 window = new Window1(savedStroke);
+            Window1 window = new Window1(savedStroke, URLbox.Text);
             window.Show();
             this.Close();  
             }
@@ -322,7 +322,7 @@ namespace PSS_V0._1
 
             Console.WriteLine($"get z is {DepthPosition}");
 
-            return DepthPosition.Z ;
+            return DepthPosition.Z * 100;
         }
         
 
