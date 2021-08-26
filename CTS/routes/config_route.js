@@ -82,7 +82,7 @@ router.post('/aoi', async (req,res)=>{
         sensorID: req.body.sensorID,
         description: req.body.description,
         observation: {
-            time: Date.now(),
+            time: Date.now()/1000,
             inhabitants: null,
         }
     });

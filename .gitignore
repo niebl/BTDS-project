@@ -1,9 +1,4 @@
 node_modules
-.env
-
-
-
-
 .vs
 
 # Prerequisites
@@ -41,3 +36,4 @@ node_modules
 CTS/.env
 
 bin
+obj

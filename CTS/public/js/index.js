@@ -47,7 +47,7 @@ class Building {
             let roomParams = {
                 roomIndex: i,
                 inferred: roomData[i].inhabitants_inferred,
-                lastEvent: 0, //init on 0, so it gets updated
+                lastEvent: -1, //init on -1, so it gets updated
                 roomNumber: roomData[i].roomNumber,
                 htmlDisplay: $(`#inhab_${roomData[i].roomNumber}`)
 
