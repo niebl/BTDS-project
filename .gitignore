@@ -41,3 +41,4 @@ node_modules
 CTS/.env
 
 bin
+obj
