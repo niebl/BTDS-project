@@ -55,6 +55,8 @@
                         <tr>
                           <th scope="col">Sensor-ID</th>
                           <th scope="col">_id</th>
+                          <th scope="col">to Room</th>
+                          <th scope="col">from Room</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -62,6 +64,20 @@
                         <tr>
                             <td><%= passage.sensorID %></td>
                             <td><%= passage._id %></td>
+
+                            <%var query = passage.toRoom;
+                            var roomName = "";
+                            if(query!=null){
+                            roomName = rooms.find(el => el._id.toString() == query.toString()).roomNumber
+                            }%>
+                            <td><%= roomName %></td>
+
+                            <%var query = passage.fromRoom;
+                            var roomName = "";
+                            if(query!=null){
+                            roomName = rooms.find(el => el._id.toString() == query.toString()).roomNumber
+                            }%>
+                            <td><%= roomName %></td>
                         </tr>
                         <% }; %>
                     </tbody>
