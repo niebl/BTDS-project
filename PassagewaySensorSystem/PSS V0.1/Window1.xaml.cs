@@ -159,45 +159,47 @@ namespace PSS_V0._1
             myLine.VerticalAlignment = VerticalAlignment.Center;
             myLine.StrokeThickness = 2;
 
-            /*
+
             Line perpendicular = new Line();
 
-            double[] midpoint = { points[1,0] + points[0, 0] / 2, 0, points[1, 2] + points[0, 2] / 2 };
-            double[,] line = new double[2, 3]{
+            double[] midpoint = { (points[1,0] + points[0, 0]) / 2, 0, (points[1, 2] + points[0, 2]) / 2 };
+            double[,] perpLine = new double[2, 3]{
                 {points[0,0], 0, points[0,2] },
                 {points[1,0], 0, points[1,2] }
             };
-            line[0, 0] -= midpoint[0]; 
-            line[1, 0] -= midpoint[0];
-            line[0, 2] -= midpoint[2];
-            line[1, 2] -= midpoint[2];
 
-            line[0, 0] += line[0, 2];
-            line[1, 0] += line[1, 2];
-            line[0, 2] = line[0, 0] - line[0, 2];
-            line[1, 2] = line[1, 0] - line[1, 2];
-            line[0, 0] -= line[0, 2];
-            line[1, 0] -= line[1, 2];
 
-            line[0, 0] += midpoint[0];
-            line[1, 0] += midpoint[0];
-            line[0, 2] += midpoint[2];
-            line[1, 2] += midpoint[2];
+            perpLine[0, 0] -= midpoint[0]; 
+            perpLine[1, 0] -= midpoint[0];
+            perpLine[0, 2] -= midpoint[2];
+            perpLine[1, 2] -= midpoint[2];
 
-            perpendicular.X1 = fieldOfView.ActualWidth / 2 + line[0,0];
-            perpendicular.X2 = fieldOfView.ActualWidth / 2 + line[1, 0];
-            perpendicular.Y1 = fieldOfView.ActualHeight - line[0, 2];
-            perpendicular.Y2 = fieldOfView.ActualHeight - line[1, 2];
+            double[,] newperpLine = new double[2, 3]{
+               
+                { -perpLine[0,2], 0, perpLine[0,0]  },
+                { 0, 0, 0},
+            };
+            newperpLine[0, 0] += midpoint[0];
+            newperpLine[1, 0] += midpoint[0];
+            newperpLine[0, 2] += midpoint[2];
+            newperpLine[1, 2] += midpoint[2];
 
-            perpendicular.HorizontalAlignment = HorizontalAlignment.Left;
-            perpendicular.VerticalAlignment = VerticalAlignment.Center;
+            perpLine = newperpLine;
+
+
+            perpendicular.X1 = fieldOfView.ActualWidth / 2 + perpLine[0,0];
+            perpendicular.X2 = fieldOfView.ActualWidth / 2 + perpLine[1, 0];
+            perpendicular.Y1 = fieldOfView.ActualHeight - perpLine[0, 2];
+            perpendicular.Y2 = fieldOfView.ActualHeight - perpLine[1, 2];
+
+
             perpendicular.StrokeThickness = 2;
             perpendicular.Stroke = System.Windows.Media.Brushes.Red;
-            */
+
 
             this.fieldOfView.Children.Clear();
             this.fieldOfView.Children.Add(myLine);
-            //this.fieldOfView.Children.Add(perpendicular);
+            this.fieldOfView.Children.Add(perpendicular);
 
 
             return myLine;
@@ -236,10 +238,6 @@ namespace PSS_V0._1
                         ellipse.Width = 1;
                         ellipse.Height = 1;
                     }
-
-                    String testline = "pt1: " + Convert.ToString(linePoints[0, 0]) + "," + Convert.ToString(linePoints[0, 2]);
-
-                    logConsole(testline);
 
 
                     // Create bodies in the scene
@@ -546,10 +544,8 @@ namespace PSS_V0._1
                     this.passageStatus += thresholdCrossed(traj);
                 }
 
-                if (this.updatesSinceLastEvent > 50)
+                if (this.updatesSinceLastEvent > 10)
                 {
-                    Console.WriteLine($"body: x:{this.x}, y:{this.y}");
-                    Console.WriteLine($"line: x1:{linePoints[0,0]}, y1:{linePoints[0,2]}       x2:{linePoints[1, 0]}, y2:{linePoints[1, 2]}");
                     this.postUpdate();
 
                 }
@@ -593,7 +589,7 @@ namespace PSS_V0._1
 
             private async void sendPost(String URL, FormUrlEncodedContent content)
             {
-                var response = await client.PostAsync(URL, content);
+                //var response = await client.PostAsync(URL, content);
                 //logConsole(await response.Content.ReadAsStringAsync());
             }
 

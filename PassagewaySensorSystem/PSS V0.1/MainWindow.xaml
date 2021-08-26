@@ -6,8 +6,12 @@
         xmlns:local="clr-namespace:PSS_V0._1"
         mc:Ignorable="d"
         Title="Initialization" Height="512" Width="789" Background="White">
-    <Grid Margin="180,29,20,79">
-        <Canvas Height="363" VerticalAlignment="Top" Margin="0,10,163,0">
+    <Grid Margin="30,29,20,20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="244*"/>
+            <ColumnDefinition Width="487*"/>
+        </Grid.ColumnDefinitions>
+        <Canvas Height="363" VerticalAlignment="Top" Margin="153,5,10,0" Grid.ColumnSpan="2">
             <Canvas.Resources>
                 <!--Define an array containing the InkEditingMode Values.-->
                 <x:Array x:Key="MyEditingModes" Type="{x:Type InkCanvasEditingMode}">
@@ -40,9 +44,10 @@
 
         </Canvas>
 
-        <Button Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="453,226,0,0" Height="20" RenderTransformOrigin="0.511,2.619" Click="Button_Submit"/>
-        <TextBox  Name="URLbox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="340" Margin="-82,408,0,-56.6"/>
-        <Button Content="Save Line" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="453,181,0,0" Click="Button_Save"/>
+        <Button Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="362,402,0,0" Height="20" RenderTransformOrigin="0.511,2.619" Click="Button_Submit" Grid.Column="1"/>
+        <TextBox  Name="URLbox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="340" Margin="0,399,0,0" Grid.Column="1"/>
+        <Button Content="Save Line" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="362,176,0,0" Click="Button_Save" Grid.Column="1"/>
+        <Label Content="PSS-Post-URL" HorizontalAlignment="Left" Margin="100,399,0,0" VerticalAlignment="Top" Width="134"/>
 
     </Grid>
 </Window>

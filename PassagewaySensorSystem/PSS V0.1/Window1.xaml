@@ -23,9 +23,7 @@
             </Canvas>
 
         </Border>
-        <Label  x:Name="coord_body" Content="Body Coordinates: " HorizontalAlignment="Left" Margin="50,10,0,0" VerticalAlignment="Top" Width="270"/>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="125,669,0,0" VerticalAlignment="Top" Width="75" Click="flipThreshold"/>
-        <Button Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75"/>
+        <Button Content="Invert Passage" HorizontalAlignment="Left" Margin="95,661,0,0" VerticalAlignment="Top" Width="195" Click="flipThreshold" Height="27"/>
 
     </Grid>
 </Window>
