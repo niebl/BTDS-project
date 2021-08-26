@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Drawing;
 using System.Net.Http;
+using System.Numerics;
 
 //Kinect Libraries
 using Microsoft.Kinect;
@@ -158,8 +159,46 @@ namespace PSS_V0._1
             myLine.VerticalAlignment = VerticalAlignment.Center;
             myLine.StrokeThickness = 2;
 
+            /*
+            Line perpendicular = new Line();
+
+            double[] midpoint = { points[1,0] + points[0, 0] / 2, 0, points[1, 2] + points[0, 2] / 2 };
+            double[,] line = new double[2, 3]{
+                {points[0,0], 0, points[0,2] },
+                {points[1,0], 0, points[1,2] }
+            };
+            line[0, 0] -= midpoint[0]; 
+            line[1, 0] -= midpoint[0];
+            line[0, 2] -= midpoint[2];
+            line[1, 2] -= midpoint[2];
+
+            line[0, 0] += line[0, 2];
+            line[1, 0] += line[1, 2];
+            line[0, 2] = line[0, 0] - line[0, 2];
+            line[1, 2] = line[1, 0] - line[1, 2];
+            line[0, 0] -= line[0, 2];
+            line[1, 0] -= line[1, 2];
+
+            line[0, 0] += midpoint[0];
+            line[1, 0] += midpoint[0];
+            line[0, 2] += midpoint[2];
+            line[1, 2] += midpoint[2];
+
+            perpendicular.X1 = fieldOfView.ActualWidth / 2 + line[0,0];
+            perpendicular.X2 = fieldOfView.ActualWidth / 2 + line[1, 0];
+            perpendicular.Y1 = fieldOfView.ActualHeight - line[0, 2];
+            perpendicular.Y2 = fieldOfView.ActualHeight - line[1, 2];
+
+            perpendicular.HorizontalAlignment = HorizontalAlignment.Left;
+            perpendicular.VerticalAlignment = VerticalAlignment.Center;
+            perpendicular.StrokeThickness = 2;
+            perpendicular.Stroke = System.Windows.Media.Brushes.Red;
+            */
+
             this.fieldOfView.Children.Clear();
             this.fieldOfView.Children.Add(myLine);
+            //this.fieldOfView.Children.Add(perpendicular);
+
 
             return myLine;
         }
@@ -561,5 +600,13 @@ namespace PSS_V0._1
 
         }
 
+        private void flipThreshold(object sender, RoutedEventArgs e)
+        {
+            double[,] newLinePoints = new double[2, 3] {
+                {linePoints[1,0],0, linePoints[1,2] }, {linePoints[0,0],0, linePoints[0,2] }
+            };
+            linePoints = newLinePoints;
+            createLine(linePoints);
+        }
     }
 }
