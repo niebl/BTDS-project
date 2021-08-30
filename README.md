@@ -64,10 +64,14 @@ If the page doesn’t load and the console returns “UnhandledPromiseRejectionW
 5. The drawn threshold will be represented as a blue line in the new window. The direction of that threshold will be shown by the red line that is perpendicular to the blue line. Make sure that the direction of the threshold lines up with the direction of the PSS as it is saved in the database, meaning the red line is supposed to point into the direction of the PSSs toRoom. (Remember that the first Room a PSS was assigned to is saved as this Sensors toRoom and the second room is saved as this Sensors fromRoom, see use instructions CTS).
 6. If the direction of the Threshold does not line up with the setup, you can flip it by clicking “invert Passage”
 
-
-### seting up the Room Sensor System (rSS)
+### seting up the Room Sensor System (RSS)
+1. Run your build of the application.
+2. In the text input field, enter the URL of the sensor endpoint like this: “http://{server-hostname or -IP}:{Port}/sensor/rss/{RSS name}”. An example may look like this: “http://192.168.178.41:3000/sensor/rss/A1aoi” 
+3. Specify the interval in which to send the posts to the server. Default of 1000ms is the fastest it allows to update.
+4. Click “confirm” to let the application start sending regular updates to the specified URL.
 
 ## example of use
+Tracking of Personell within office buildings to ensure that social distancing measures are being kept.
 
 ## disclaimer
 At this point in time, this system is not reliable enough for any use such as social distancing enforcement. We are not liable for any damages that may occur in actual use. Before implementing such surveillance systems also consider that privacy is an essential human right that should not be violated.
