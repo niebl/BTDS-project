@@ -45,9 +45,27 @@ If the page doesn’t load and the console returns “UnhandledPromiseRejectionW
 5. Build and run the application.
 6. If the window displays the Sensor view or a top-down view in which bodies are tracked, the application is correctly receiving data from the sensor.
 
-
-
 ## use instructions
+### setting up the CTS
+1. Firstly it is important to register the sensors and rooms that you wish to surveill. For this, navigate to the “/config”-page on your server.
+2. Register any RSS you wish to use by entering its name in the field “Sensor ID” under “Room Surveillance Sensor” and click submit
+3. Register any PSS you wish to use by entering its name in the field “Sensor ID” under “Pathway Surveillance Sensor” and click submit
+4. Register and Room you wish to surveill by entering the name in the field “Room Number”. Then go into the table of registered sensors and copy the id of the sensors belonging to that room into the Corresponding form fields.
+5. Remember that the first Room which a PSS is added to is registered as the sensors “toRoom”, meaning that the direction of the entrance is pointing into that room. This is important so the system correctly adds and subtracts the numbers of inhabitants when they pass between the sensors.
+6. Once all rooms and sensors are added, click “reset database counters”. Make sure this is done during a time when all rooms are empty of inhabitants or it might introduce some error.
+7. Navigate back to the main page and you should be able to see an overview of the rooms you registered.
+8. Once Messages from the connected sensor systems arrive, the numbers of inhabitants will update accordingly and the initially greyed out RSS viewport will turn yellow and display the newest arrived RSS-snapshot along with a timestamp.
+
+### seting up the Passageway Sensor System (PSS)
+1. Run your build of the application.
+2. In the text input field, enter the URL of the sensor endpoint like this: “http://{server-hostname or -IP}:{Port}/sensor/pss/{PSS name}”. An example may look like this: “http://192.168.178.41:3000/sensor/pss/A1entrance” 
+3. Select a color in the field on the right and draw a line on the ground in the depth-sensor-view. Make sure you are not drawing on any black area so the system can correctly determine the coordinates of the line.
+4. Click “Save line”, then “Submit”. If the drawn line is valid, a new window will open.
+5. The drawn threshold will be represented as a blue line in the new window. The direction of that threshold will be shown by the red line that is perpendicular to the blue line. Make sure that the direction of the threshold lines up with the direction of the PSS as it is saved in the database, meaning the red line is supposed to point into the direction of the PSSs toRoom. (Remember that the first Room a PSS was assigned to is saved as this Sensors toRoom and the second room is saved as this Sensors fromRoom, see use instructions CTS).
+6. If the direction of the Threshold does not line up with the setup, you can flip it by clicking “invert Passage”
+
+
+### seting up the Room Sensor System (rSS)
 
 ## example of use
 
