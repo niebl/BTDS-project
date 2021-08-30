@@ -74,4 +74,5 @@ If the page doesn’t load and the console returns “UnhandledPromiseRejectionW
 Tracking of Personell within office buildings to ensure that social distancing measures are being kept.
 
 ## disclaimer
-At this point in time, this system is not reliable enough for any use such as social distancing enforcement. We are not liable for any damages that may occur in actual use. Before implementing such surveillance systems also consider that privacy is an essential human right that should not be violated.
+At this point in time, this system is not reliable enough for any use such as social distancing enforcement. We are not liable for any damages that may occur in actual use.  
+Before implementing such surveillance systems also consider that privacy is an essential human right that should not be violated.
